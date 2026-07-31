@@ -1,0 +1,65 @@
+/* search Module styles */
+.class-search{
+  padding: 20px;
+  .flexForm .el-form-item__content{
+    justify-content: right;
+  }
+
+}
+:deep(.el-form-item){
+    margin-right: 10px !important;
+    label{
+      line-height: initial !important;
+      align-items: center !important;
+    }
+    .el-input {
+      width: 220px;
+    }
+    .el-select {
+      width: 220px;
+      .el-tag{
+        max-width: 110px !important;
+      }
+    }
+    .el-cascader__tags {
+      width: inherit;
+      .el-tag {
+        max-width: 110px !important;
+      }
+    }
+    .el-cascader .el-input .el-input__inner{
+      height: auto !important;
+      line-height: 0.125rem;
+      min-height: 0.16667rem;
+    }
+}
+:deep(.class-group-select)  {
+  .el-form-item__content{
+    box-shadow: 0 0 0 1px #dcdfe6;
+    border-radius: 4px;
+  }
+  .left-select {
+    width: 120px;
+    .el-select__wrapper{
+      box-shadow: none;
+      border-radius: 4px 0  0 4px;
+      border-right: 1px solid #dcdfe6;
+      padding-right: 5px;
+    }
+  }
+  .right-select {
+    box-shadow: none;
+    .el-input__wrapper, .el-select__wrapper{
+      box-shadow: none;
+    }
+  }
+  .right-select:hover{
+    box-shadow: none;
+  }
+}
+.el-cascader-node__prefix{
+  position: absolute !important;
+}
+:deep(.class-padding-p-line){
+  padding: 0 10px;
+}

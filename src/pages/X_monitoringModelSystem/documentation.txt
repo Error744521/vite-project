@@ -1,0 +1,18 @@
+系统模型:
+
+基础文件： basisFile
+    法律法规： law&regulations
+    地方规定： localFile&localBasis
+
+基础案例：
+    案例列表： caseBases
+    案例标注： caseAnnotation
+
+数据类型/行业/类别
+
+    门户网站： 广告/
+    平台数据：
+
+    类型： 网站/平台/网店/餐饮外卖/App/小程序/公众号/
+
+    交易行为/ 宣传行为/ 经营性质/宣传性质

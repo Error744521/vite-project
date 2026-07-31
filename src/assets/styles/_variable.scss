@@ -1,0 +1,111 @@
+@use 'sass:math';
+@use '@style/themes/index';
+
+$s12: 12px;
+$s14: 14px;
+$s16: 16px;
+$s18: 18px;
+$s20: 20px;
+$s24: 24px;
+$s30: 30px;
+$s32: 32px;
+$s40: 40px;
+
+$mainPrimary: #409eff;
+$mainSuccess: #67c23a;
+$mainWarning: #e6a23c;
+$mainDanger: #f56c6c;
+$mainInfo: #909399;
+
+$mainPrimaryHex: #3a98fa7f;
+$mianCyan: #74ecf8;
+$white: #fdfdfd;
+$white-light: #f2f5fc;
+$white-dark: #e9e9ee;
+
+$black-color: #606266;
+$black-dark: #303133;
+$black-light: #909399;
+
+$grey-color: #e5e5e5;
+$grey-dark: #d0d0d0;
+$grey-light: #f5f5f5;
+
+$red-dark: #bb1a1aff;
+$red-color: #c51147;
+$red-light: #f56c6c;
+
+$orange-light: #e6a23cff;
+$orange-dark: #bd4500ff;
+$orange-color: #ff6200;
+
+$yellow-dark: #b9b002;
+$yellow-color: #fcf001;
+$yellow-light: #f8f060;
+
+$green-color: #46cb01;
+$green-dark: #419118;
+$green-light: #01ffa8;
+
+$cyan-color: #26b0eb;
+$cyan-dark: #0191ab;
+$cyan-light: #01d1f6;
+
+$blue-color: #007bfd;
+$blue-dark: #0263c9;
+$blue-light: #409eff;
+
+$purple-color: #ff00f2;
+$purple-bark: #b702ae;
+$purple-light: #f649ed;
+
+$powder-color: #fa24af;
+$powder-bark: #ea0399;
+$powder-light: #fc81d5ff;
+
+/*$powder-color: #FC81D5FF;
+$powder-bark: #bd4500;
+$powder-light: #ffdef5;*/
+
+$designWidth: 1920;
+$designHeight: 1080;
+
+@function vw($px) {
+  @return math.div($px, $designWidth) * 100vw;
+}
+@function vh($px) {
+  @return math.div($px, $designHeight) * 100vh;
+}
+
+@mixin multiline-ellipsis($num) {
+  display: -webkit-box; /* 使用 WebKit 的 box 模型 */
+  -webkit-line-clamp: #{$num}; /* 限制显示 3 行 */
+  -webkit-box-orient: vertical; /* 垂直排列内容 */
+  overflow: hidden; /* 隐藏超出容器的内容 */
+}
+
+@mixin flexwrap($wrap) {
+  display: flex;
+  flex-wrap: #{$wrap};
+}
+@mixin Hstyle($value) {
+  /* 1: 24  2: 28 3:32 4: 36*/
+  font-size: $value * 4 + 20 + px;
+  font-weight: 500;
+  height: 50px;
+  line-height: 50px;
+}
+@mixin Pstyle($value) {
+  /* 1: 12  2: 14 3:16 4: 18*/
+  font-size: $value * 2 + 10 + px;
+  font-weight: 400;
+  height: 36px;
+  line-height: 36px;
+}
+@mixin Spanstyle($value) {
+  /* 1: 12  2: 14 3:16 4: 18*/
+  font-size: $value * 2 + 10 + px;
+  font-weight: 400;
+  height: 24px;
+  line-height: 24px;
+}

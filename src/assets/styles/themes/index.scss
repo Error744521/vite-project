@@ -1,0 +1,78 @@
+// 默认加载浅色主题
+@use './light.scss' as *;
+
+// 深色主题变量
+.theme-dark {
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #66b1ff;
+  --el-color-primary-light-5: #8cc5ff;
+  --el-color-primary-light-7: #b3d8ff;
+  --el-color-primary-light-8: #cce0ff;
+  --el-color-primary-light-9: #e6f2ff;
+  --el-color-primary-dark-2: #337ecc;
+
+  --el-color-success: #67c23a;
+  --el-color-success-light-3: #85ce61;
+  --el-color-success-light-5: #a3d273;
+  --el-color-success-light-7: #c1e88a;
+  --el-color-success-light-8: #d1ed9c;
+  --el-color-success-light-9: #e1f3bd;
+  --el-color-success-dark-2: #529b2e;
+
+  --el-color-warning: #e6a23c;
+  --el-color-warning-light-3: #ebb563;
+  --el-color-warning-light-5: #f0c48a;
+  --el-color-warning-light-7: #f5d7b1;
+  --el-color-warning-light-8: #f9e3c7;
+  --el-color-warning-light-9: #fdf0dc;
+  --el-color-warning-dark-2: #b37b29;
+
+  --el-color-danger: #f56c6c;
+  --el-color-danger-light-3: #f78989;
+  --el-color-danger-light-5: #f9a5a5;
+  --el-color-danger-light-7: #fbc2c2;
+  --el-color-danger-light-8: #fddada;
+  --el-color-danger-light-9: #fef0f0;
+  --el-color-danger-dark-2: #c45656;
+
+  --el-color-info: #909399;
+  --el-color-info-light-3: #a6a9ad;
+  --el-color-info-light-5: #b8babf;
+  --el-color-info-light-7: #cbccd0;
+  --el-color-info-light-8: #d5d6d9;
+  --el-color-info-light-9: #ebeef5;
+  --el-color-info-dark-2: #6f6f6f;
+
+  --el-bg-color: #0d1117;
+  --el-bg-color-page: #010409;
+  --el-bg-color-overlay: #161b22;
+
+  --el-text-color-primary: #c9d1d9;
+  --el-text-color-regular: #b1b8b8;
+  --el-text-color-secondary: #8b949e;
+  --el-text-color-placeholder: #6e7681;
+  --el-text-color-disabled: #484f58;
+
+  --el-border-color: #30363d;
+  --el-border-color-light: #21262d;
+  --el-border-color-lighter: #1c2128;
+  --el-border-color-extra-light: #161b22;
+  --el-border-color-dark: #484f58;
+  --el-border-color-darker: #6e7681;
+
+  --el-fill-color: #1c2128;
+  --el-fill-color-light: #21262d;
+  --el-fill-color-lighter: #30363d;
+  --el-fill-color-extra-light: #161b22;
+  --el-fill-color-dark: #161b22;
+  --el-fill-color-darker: #484f58;
+  --el-fill-color-blank: #0d1117;
+
+  --el-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
+  --el-box-shadow-light: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+  --el-box-shadow-lighter: 0 0 6px 0 rgba(0, 0, 0, 0.2);
+  --el-box-shadow-dark: 0 4px 16px 0 rgba(0, 0, 0, 0.5);
+
+  --el-mask-color: rgba(0, 0, 0, 0.7);
+  --el-mask-color-extra-light: rgba(0, 0, 0, 0.4);
+}

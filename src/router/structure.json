@@ -1,0 +1,40 @@
+
+
+const N_networkSystem = [ //# N_networkSystem: 网监系统
+    { name: "首页", system: 1, path: "networkSystemIndex" },
+    { name: "数据中心", system: 1, path: "centerData",
+      children: [
+        { system: 1, type: 3, name: "主体库", path: "registerBody" },
+        { system: 1, type: 3, name: "微信小程序", path: "appletWechat" },
+        { system: 1, type: 3, name: "APP应用", path: "appManagement" },
+        { system: 1, type: 3, name: "公众号", path: "officialAccounts" },
+        { system: 1, type: 3, name: "平台管理", path: "platformManagement" },
+        { system: 1, type: 3, name: "商品库", path: "productList" },
+        { system: 1, type: 3, name: "网店经营者", path: "shopManagement" },
+        { system: 1, type: 3, name: "网站经营者", path: "websiteManagement" }
+      ]
+    },
+    { name: "任务管理", system: 1, path: "J_statisticsSystem" },
+    { name: "线索管理", system: 1, path: "clueManagement" },
+    { name: "行业管理", system: 1, path: "industryManagement" },
+  ]
+
+
+S_systemManagement = [ //# S_systemManagement: 系统管理
+    { name: "首页", system: 1, path: "networkSystemIndex" },
+    { name: "数据中心", system: 1, path: "centerData",
+      children: [
+        { system: 1, type: 3, name: "主体库", path: "registerBody" },
+        { system: 1, type: 3, name: "微信小程序", path: "appletWechat" },
+        { system: 1, type: 3, name: "APP应用", path: "appManagement" },
+        { system: 1, type: 3, name: "公众号", path: "officialAccounts" },
+        { system: 1, type: 3, name: "平台管理", path: "platformManagement" },
+        { system: 1, type: 3, name: "商品库", path: "productList" },
+        { system: 1, type: 3, name: "网店经营者", path: "shopManagement" },
+        { system: 1, type: 3, name: "网站经营者", path: "websiteManagement" }
+      ]
+    },
+    { name: "任务管理", system: 1, path: "J_statisticsSystem" },
+    { name: "线索管理", system: 1, path: "clueManagement" },
+    { name: "行业管理", system: 1, path: "industryManagement" },
+  ]
