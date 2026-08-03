@@ -12,7 +12,7 @@
 
 <script setup>
 import { useFormStore } from "@/store/formation.js";
-import { isNull } from '@/utils/publicEvents/tools.js'
+import { isNotEmpty } from '@/utils/tools.js'
 import {submitItem} from "@/api/index.js";
 const store = useFormStore()
 const props = defineProps({
@@ -38,17 +38,17 @@ state.value.multiple = props.attributes.type === "Array" ? true : false
 const emit = defineEmits(['changeFn']);
 
 const handleSelect = (param) => {
-  if (isNull(param)) {
+  if (isNotEmpty(param)) {
     const index = list.value.findIndex(item => item.value === param)
     state.value.sublable = list.value[index].label
-    if (isNull(value.value)) {
+    if (isNotEmpty(value.value)) {
       setStore()
     }
   }
 }
 
 const changeSelect = (data) => {
-  if (isNull(data)) {
+  if (isNotEmpty(data)) {
     let param = data
     if (data instanceof String) {
       param = [data]
@@ -57,7 +57,7 @@ const changeSelect = (data) => {
       const array = childlist.value.filter(item => param.indexOf(item.value) !== -1)
       state.value.childlable = array.map(item => item.label).join("、");
     }
-    if (isNull(key.value)){
+    if (isNotEmpty(key.value)){
       setStore()
     }
   } else {

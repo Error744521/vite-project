@@ -1,6 +1,6 @@
 import { submitItem } from '@/api/index.js'
 import { ElMessage } from 'element-plus'
-import { setStorage } from '@/utils/publicEvents/tools.js'
+import { setStorage } from '@/utils/tools.js'
 const requester = {
   getIndustryTree: async () => {
     return await getHttp('/v1/company/industrytree', 'get', {}, 'IndustryTree', { label: 'industry', value: 'id' })

@@ -42,7 +42,7 @@
 import iconfontJson from '@/assets/iconfont/iconfont.json'
 import {useSystemStore} from '@/store/system.js'
 import {assetPng, assetSvg} from '@/assets/Index.js'
-import {copyName} from '@/utils/publicEvents/tools.js'
+import {copyName} from '@/utils/tools.js'
 
 const store = useSystemStore()
 const state = reactive({iconfontlist: [], pnglist: [], svglist: []})

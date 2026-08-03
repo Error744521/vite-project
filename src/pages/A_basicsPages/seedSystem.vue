@@ -57,7 +57,7 @@ import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSystemStore } from '@/store/system.js'
 import { submitItem } from '@/api/index.js'
-import { isUrl } from '@/utils/publicEvents/tools.js'
+import { isUrl } from '@/utils/tools.js'
 import { outlogin } from '@/api/setting.js'
 import WeaterModule from "@views/Components/weaterModule.vue";
 import swiperDom from "@/components/common/swiperDom.vue"

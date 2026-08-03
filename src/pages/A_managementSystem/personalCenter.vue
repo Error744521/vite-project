@@ -37,7 +37,7 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useSystemStore } from '@/store/system.js'
 import { submitItem } from '../../api/index'
-import { subString } from '@/utils/publicEvents/tools.js'
+import { subString } from '@/utils/tools.js'
 import descriptionsDom from '@/components/common/descriptionsDom.vue'
 import IndexTable from '@/components/index-table.vue'
 import PasswordDialog from "@views/Operation/PasswordDialog.vue";

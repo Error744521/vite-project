@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getStorage } from "@/utils/publicEvents/tools.js";
+import { getStorage } from "@/utils/tools.js";
 import requester from "@/api/publiclist.js";
 
 const getData = (state, key) => {
@@ -34,4 +34,3 @@ export const useMultipleStore = defineStore('list', {
   actions: {
   }
 })
-

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { isNotEmpty } from '@/utils/publicEvents/tools.js'
+import { isNotEmpty } from '@/utils/tools.js'
 
 export const useFormStore = defineStore('store', {
   state: () => {

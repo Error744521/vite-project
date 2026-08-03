@@ -44,7 +44,7 @@
 import { useSystemStore } from "@/store/system.js";
 import { submitItem } from "@/api/index.js";
 import { useRoute, useRouter } from "vue-router";
-import { isLinks } from "@/utils/publicEvents/tools.js"
+import { isLinks } from "@/utils/tools.js"
 import PasswordDialog from "@views/Operation/PasswordDialog.vue";
 
 const route = useRoute()
