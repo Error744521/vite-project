@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --mode development",
+    "dev:mock": "vite --mode mock",
     "build": "vite build --mode production",
     "build:test": "vite build --mode test",
     "lint": "eslint src --ext .js,.vue",

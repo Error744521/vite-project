@@ -84,6 +84,7 @@
 
 <script setup>
 import {useFormStore} from '@/store/formation.js'
+import { formatDate as formatDateUtil } from '@/utils/tools.js'
 const store = useFormStore()
 
 const props = defineProps({
@@ -110,52 +111,57 @@ const params = ref({
  })
 const tableRef = ref(null)
 const getIndexMethod = (index) => { return (props.meta.page - 1) * props.meta.pageSize + index + 1 }
-const handleSelectionChange = (selection) => { const arr = selection.map((item) => item.id) store.setSelectionMultiple(arr) }
+const handleSelectionChange = (selection) => {
+  const arr = selection.map((item) => item.id)
+  store.setSelectionMultiple(arr)
+}
 onMounted(() => {
   store.clearRuleForm()
 })
 const handleLinkClick = (row, column) => {
   if (!row[column.prop]) return false
-  window.open(row[column.prop]) //emit('link-click', row, column) }
-  const handleSortChange = ({column, prop, order}) => {
-    emit('sort-change', {column, prop, order})
-  }
-  const handleRowClick = (row, column, event) => {
-    emit('row-click', row, column, event)
-  }
-  const handleRowDblclick = (row, column, event) => {
-    emit('row-dblclick', row, column, event)
-  }
-  const handleCellClick = (row, column, cell, event) => {
-    emit('cell-click', row, column, cell, event)
-  }
-  const handleExpandChange = (row, expandedRows) => {
-    emit('expand-change', row, expandedRows)
-  }
-  const getTagType = (value, tagMap) => {
-    if (!tagMap) return ''
-    const item = tagMap.find((t) => t.value === value)
-    return item?.type || ''
-  }
-  const formatValue = (value, tagMap) => {
-    if (!tagMap) return value
-    const item = tagMap.find((t) => t.value === value)
-    return item?.label || value
-  }
-  const formatDate = (value, format) => {
-    if (!value) return ''
-    return formatDateUtil(value, format)
-  }
-  const clearSelection = () => { //用于多选表格，清空用户的选择
-    tableRef.value?.clearSelection()
-  }
-  const clearSort = () => { //用于清空排序条件，数据会恢复成未排序的状态
-    tableRef.value?.clearSort()
-  }
-  const scrollTo = (left, top) => { //滚动到一组特定坐标
-     tableRef.value?.scrollTo(left, top)
-  }
-  defineExpose({clearSelection, clearSort, scrollTo, tableRef})
+  window.open(row[column.prop])
+  emit('link-click', row, column)
+}
+const handleSortChange = ({column, prop, order}) => {
+  emit('sort-change', {column, prop, order})
+}
+const handleRowClick = (row, column, event) => {
+  emit('row-click', row, column, event)
+}
+const handleRowDblclick = (row, column, event) => {
+  emit('row-dblclick', row, column, event)
+}
+const handleCellClick = (row, column, cell, event) => {
+  emit('cell-click', row, column, cell, event)
+}
+const handleExpandChange = (row, expandedRows) => {
+  emit('expand-change', row, expandedRows)
+}
+const getTagType = (value, tagMap) => {
+  if (!tagMap) return ''
+  const item = tagMap.find((t) => t.value === value)
+  return item?.type || ''
+}
+const formatValue = (value, tagMap) => {
+  if (!tagMap) return value
+  const item = tagMap.find((t) => t.value === value)
+  return item?.label || value
+}
+const formatDate = (value, format) => {
+  if (!value) return ''
+  return formatDateUtil(value, format)
+}
+const clearSelection = () => { //用于多选表格，清空用户的选择
+  tableRef.value?.clearSelection()
+}
+const clearSort = () => { //用于清空排序条件，数据会恢复成未排序的状态
+  tableRef.value?.clearSort()
+}
+const scrollTo = (left, top) => { //滚动到一组特定坐标
+   tableRef.value?.scrollTo(left, top)
+}
+defineExpose({clearSelection, clearSort, scrollTo, tableRef})
 </script>
 
 <style scoped lang="scss">

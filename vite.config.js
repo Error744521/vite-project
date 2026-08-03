@@ -9,9 +9,11 @@ import postCssPxToRem from 'postcss-pxtorem'
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { viteMockServe } from 'vite-plugin-mock'
 
 export default defineConfig(({ mode}) => {
   const env = loadEnv(mode, __dirname);
+  const useMock = env.VITE_USE_MOCK === 'true'
   return {
     root: "./",
     base: env.VITE_MODE === 'production' ? './' : '/',
@@ -53,6 +55,12 @@ export default defineConfig(({ mode}) => {
       createSvgIconsPlugin({
         iconDirs: [path.resolve(__dirname, 'src/assets/svg')],
         symbolId: 'icon-[dir]-[name]',
+      }),
+      viteMockServe({
+        mockPath: 'mock',
+        enable: useMock,
+        watchFiles: true,
+        logger: true
       }),
     ],
     resolve: {
@@ -102,11 +110,11 @@ export default defineConfig(({ mode}) => {
         ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
       },
       proxy: {
-        '/v1': {
+        ...(!useMock ? { '/v1': {
           target: env.VITE_BASW_API,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/v1/, ''),
-        },
+        } } : {}),
         '/socket.io': {
           target: 'ws://localhost:5174',
           ws: true,

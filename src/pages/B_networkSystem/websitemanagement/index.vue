@@ -196,4 +196,20 @@ const getList = () => {
   })
 }
 
+const handleCallback = (key, val) => {
+  if (key === 'page' || key === 1) {
+    state.meta.page = val
+    getList()
+  }
+  if (key === 'size') {
+    state.meta.pageSize = val
+    getList()
+  }
+}
+
+onMounted(() => {
+  getList()
+})
+</script>
+
 <style scoped lang="scss">.module_page { height: 100%; overflow: auto; &::-webkit-scrollbar { display: none; } } .refresh-button { display: flex; align-items: center; gap: 8px; padding: 5px 16px; background: #f0f9ff; border: 1px solid #d6ecff; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; color: #1890ff; &:hover { background: #e6f7ff; border-color: #91d5ff; } .refresh-icon { width: 16px; height: 16px; } span { font-size: 14px; } }</style>

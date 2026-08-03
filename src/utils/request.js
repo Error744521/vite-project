@@ -5,7 +5,7 @@ import { useSystemStore } from '@/store/system.js'
 import { getStorage } from "@/utils/tools.js";
 
 const service = axios.create({
-  baseURL: import.meta.env.MODE === 'development' ? "" : import.meta.env.VITE_BASW_URL,
+  baseURL: import.meta.env.VITE_USE_MOCK === 'true' || import.meta.env.MODE === 'development' ? "" : import.meta.env.VITE_BASW_URL,
   timeout: 60000, // 请求超时时间
   withCredentials: true
 })

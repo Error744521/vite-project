@@ -123,7 +123,107 @@ const state = reactive({
   },
   loading: false,
   meta: {},
-  params: {pagination: true, //是否带分页 border: true, //是否带有纵向边框 stripe: true, //是否为斑马纹 table fit: true, //列的宽度是否自撑开 showHeader: true, highlightCurrentRow: true, //是否要高亮当前行 showOverflowTooltip: false, //是否隐藏额外内容并在单元格悬停时使用 Tooltip 显示它们 emptyText: '暂无数据', selection: true, showIndex: true, expand: false, operationWidth: 150 }, totalData: { total: 0, request: { url: '', methods: 'post', param: { dataType: 3 } }, pageUrl: '/exceptionData?type=3' }, operation: { Template: { url: '' }, Importing: { url: '/v1/companies/company_import', methods: 'post', param: { dataType: 3 } }, Export: { url: '', methods: 'post', param: { dataType: 3 } }, Assignment: { url: '', methods: 'post', param: { dataType: 3 } }, Dispatch: { url: '', methods: 'post', param: { dataType: 3 } }, Delete: { url: '', methods: 'post', param: { dataType: 3 } }, Marking: { url: '', methods: 'post', param: { dataType: 3 } }, Unusual: { url: '', methods: 'post', param: { dataType: 3 } }, NewData: { url: '', methods: 'post', param: { dataType: 3 } }, Screenshot: { url: '', methods: 'post', param: { dataType: 3 } } }, screeData: { sorting: { url: '', methods: 'post', list: [ { label: '默认', value: '' }, { label: '正序', value: 1 }, { label: '倒序', value: -1 } ] }, select: { url: '', methods: 'post', list: [ { label: '默认', value: '' }, { label: '载体数', value: 1 }, { label: '处罚', value: 2 }, { label: '投诉', value: 3 }, { label: '风险', value: 4 }, { label: '信用', value: 5 } ] } } }) const loading = ref(false) const columns = ref([ { prop: 'website_name', label: '网站名称', width: 'auto', minWidth: '10%', showOverflowTooltip: true }, { prop: 'website_url', type: 'link', label: '网站地址', className: 'rowEllipsis', width: 'auto', minWidth: '10%', showOverflowTooltip: true }, { slot: 'flag', label: '经营性质', width: 'auto', minWidth: '10%', align: 'center' }, { slot: 'label_names', label: '数据标签', width: 'auto', minWidth: '10%' }, { prop: 'website_licence', label: '备案号', width: 'auto', minWidth: '10%' }, { slot: 'company_name', label: '主体名称', width: 'auto', minWidth: '10%', showOverflowTooltip: false }, { slot: 'certificate_show_type', label: '是否亮证', width: 'auto', minWidth: '10%', showOverflowTooltip: true, align: 'center' }, { slot: 'light_flag', label: '亮照/亮承诺', width: 'auto', minWidth: '10%', align: 'center' }, { prop: 'updated_at', type: 'date', label: '更新时间', width: 'auto', minWidth: '10%', align: 'center' }, { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' } ]) const getList = () => { const param = store.getSearchRuleForm || { page: 1 } loading.value = true submitItem('/v1/websites', 'get', param).then((res) => { loading.value = false if (res.code === 200) { tableData.value = res.data state.meta.page = res.meta.current_page state.meta.pageSize = res.meta.per_page state.meta.total = res.meta.total state.totalData.total = res.meta.total } else { state.params.emptyText = res.msg || '请求数据失败！' } }) } const handleSubmit = (key, val) => { if (key === 'page' || key === 1) { state.meta.page = val getList() } if (key === 'size') { state.meta.pageSize = val getList() } } onMounted(() => { getList() })
+  params: {
+    pagination: true,
+    border: true,
+    stripe: true,
+    fit: true,
+    showHeader: true,
+    highlightCurrentRow: true,
+    showOverflowTooltip: false,
+    emptyText: '暂无数据',
+    selection: true,
+    showIndex: true,
+    expand: false,
+    operationWidth: 150
+  },
+  totalData: {
+    total: 0,
+    request: { url: '', methods: 'post', param: { dataType: 3 } },
+    pageUrl: '/exceptionData?type=3'
+  },
+  operation: {
+    Template: { url: '' },
+    Importing: { url: '/v1/companies/company_import', methods: 'post', param: { dataType: 3 } },
+    Export: { url: '', methods: 'post', param: { dataType: 3 } },
+    Assignment: { url: '', methods: 'post', param: { dataType: 3 } },
+    Dispatch: { url: '', methods: 'post', param: { dataType: 3 } },
+    Delete: { url: '', methods: 'post', param: { dataType: 3 } },
+    Marking: { url: '', methods: 'post', param: { dataType: 3 } },
+    Unusual: { url: '', methods: 'post', param: { dataType: 3 } },
+    NewData: { url: '', methods: 'post', param: { dataType: 3 } },
+    Screenshot: { url: '', methods: 'post', param: { dataType: 3 } }
+  },
+  screeData: {
+    sorting: {
+      url: '',
+      methods: 'post',
+      list: [
+        { label: '默认', value: '' },
+        { label: '正序', value: 1 },
+        { label: '倒序', value: -1 }
+      ]
+    },
+    select: {
+      url: '',
+      methods: 'post',
+      list: [
+        { label: '默认', value: '' },
+        { label: '载体数', value: 1 },
+        { label: '处罚', value: 2 },
+        { label: '投诉', value: 3 },
+        { label: '风险', value: 4 },
+        { label: '信用', value: 5 }
+      ]
+    }
+  }
+})
+
+const loading = ref(false)
+const columns = ref([
+  { prop: 'website_name', label: '网站名称', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
+  { prop: 'website_url', type: 'link', label: '网站地址', className: 'rowEllipsis', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
+  { slot: 'flag', label: '经营性质', width: 'auto', minWidth: '10%', align: 'center' },
+  { slot: 'label_names', label: '数据标签', width: 'auto', minWidth: '10%' },
+  { prop: 'website_licence', label: '备案号', width: 'auto', minWidth: '10%' },
+  { slot: 'company_name', label: '主体名称', width: 'auto', minWidth: '10%', showOverflowTooltip: false },
+  { slot: 'certificate_show_type', label: '是否亮证', width: 'auto', minWidth: '10%', showOverflowTooltip: true, align: 'center' },
+  { slot: 'light_flag', label: '亮照/亮承诺', width: 'auto', minWidth: '10%', align: 'center' },
+  { prop: 'updated_at', type: 'date', label: '更新时间', width: 'auto', minWidth: '10%', align: 'center' },
+  { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
+])
+
+const getList = () => {
+  const param = store.getSearchRuleForm || { page: 1 }
+  loading.value = true
+  submitItem('/v1/websites', 'get', param).then((res) => {
+    loading.value = false
+    if (res.code === 200) {
+      tableData.value = res.data
+      state.meta.page = res.meta.current_page
+      state.meta.pageSize = res.meta.per_page
+      state.meta.total = res.meta.total
+      state.totalData.total = res.meta.total
+    } else {
+      state.params.emptyText = res.msg || '请求数据失败！'
+    }
+  })
+}
+
+const handleSubmit = (key, val) => {
+  if (key === 'page' || key === 1) {
+    state.meta.page = val
+    getList()
+  }
+  if (key === 'size') {
+    state.meta.pageSize = val
+    getList()
+  }
+}
+
+onMounted(() => {
+  getList()
+})
 </script>
 
 <style scoped lang="scss">
