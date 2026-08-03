@@ -1,80 +1,65 @@
 <template>
-  <el-form-item :label="state.label" :prop="attributes.key">
-    <el-autocomplete v-model="value" :fetch-suggestions="querySearch" :placeholder="state.placeholder" :value-key="'label'"
-         @select="handleSelect" @change="handleChange" @focus="fetchData">
-    </el-autocomplete>
+  <el-form-item :label="fieldLabel(field)" :prop="field.key">
+    <el-autocomplete
+      :model-value="displayValue"
+      :fetch-suggestions="querySearch"
+      :placeholder="fieldPlaceholder(field)"
+      value-key="label"
+      @update:model-value="handleInput"
+      @select="handleSelect"
+    />
   </el-form-item>
 </template>
 
 <script setup>
-import { useFormStore } from "@/store/formation.js";
-import { useMultipleStore } from "@/store/selectionMultiple.js";
-import {submitItem} from "@/api/index.js";
-const store = useFormStore()
-const Multiple = useMultipleStore()
+import { ref, watch } from 'vue'
+import { fieldLabel, fieldPlaceholder } from './fieldProps.js'
+
 const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => {}
+  modelValue: {
+    type: [String, Number],
+    default: ''
   },
-})
-const value = ref(null)
-const listSelect = ref([])
-
-const state = shallowRef({
-  label: props.attributes.show ? props.attributes.label : '',
-  placeholder: '请选择' + props.attributes.label
-})
-
-const emit = defineEmits(['changeFn']);
-
-const handleSelect = (param) => {
-  store.setSearchFormRecord({ name: props.attributes.label, value: param.label, key: props.attributes.key })
-  store.setSearchRuleForm(value.value, props.attributes.key)
-}
-const handleChange = (value) => {
-  if (props.attributes.select || value === '') {
-    handleSelect({ value: value, label: value })
+  field: {
+    type: Object,
+    default: () => ({})
+  },
+  options: {
+    type: Array,
+    default: () => []
   }
+})
+
+const emit = defineEmits(['update:modelValue', 'change'])
+const displayValue = ref('')
+
+const findOptionByValue = (value) => {
+  return props.options.find((item) => item.value === value || String(item.value) === String(value))
+}
+
+const handleInput = (value) => {
+  displayValue.value = value
+  emit('update:modelValue', value)
+  emit('change', value)
+}
+
+const handleSelect = (item) => {
+  const value = item?.value ?? item?.label ?? ''
+  displayValue.value = item?.label ?? value
+  emit('update:modelValue', value)
+  emit('change', value)
 }
 
 const querySearch = (queryString, cb) => {
-  const results = queryString ? listSelect.value.filter(item => item.label.indexOf(queryString) === 1 ) : listSelect.value
+  const keyword = String(queryString || '')
+  const results = keyword ? props.options.filter((item) => String(item.label).includes(keyword)) : props.options
   cb(results)
 }
 
-watch(() => store.searchRuleForm[props.attributes.key], (newVal, oldVal) => {
-  if (newVal === undefined) {
-    value.value = newVal
-  }
-})
-
-const fetchData = async() => {
-  const { request, list } = props.attributes
-  if (list && list.length > 0) {
-    listSelect.value = list
-    return
-  }
-  try {
-    if (!request || !request.url || !listSelect.value) return
-    const { url, method = 'get', param = {}, label = 'label', value = 'value' } = request
-    const response = await submitItem(url, method, param)
-    if (response.code === 200) {
-      const data = response.data || response
-      listSelect.value = data.map(item => ({
-        label: item[label],
-        value: item[value]
-      }))
-    } else {
-      console.warn('API request failed:', response.message)
-    }
-  } catch (error) {
-    console.error('Fetch error:', error)
-  }
-}
-onMounted(() => {
-
-})
+watch([() => props.modelValue, () => props.options], ([value]) => {
+  const option = findOptionByValue(value)
+  displayValue.value = option?.label ?? value ?? ''
+}, { immediate: true, deep: true })
 </script>
 
 <style scoped lang="scss">

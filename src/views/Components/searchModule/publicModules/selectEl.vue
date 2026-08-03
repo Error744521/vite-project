@@ -1,94 +1,79 @@
 <template>
-  <el-form-item :label="state.label" :prop="attributes.key" :label-width="state.labelWidth" >
-    <el-select v-model="value" :placeholder="state.placeholder" collapse-tags collapse-tags-tooltip clearable
-               @change="changeSelect" :multiple="state.multiple" @focus="fetchData">
+  <el-form-item :label="fieldLabel(field)" :prop="field.key" :label-width="field.labelWidth" >
+    <el-select
+      :model-value="modelValue"
+      :placeholder="fieldPlaceholder(field)"
+      collapse-tags
+      collapse-tags-tooltip
+      clearable
+      :loading="loading"
+      :multiple="isMultipleField(field)"
+      @update:model-value="changeSelect"
+    >
       <el-option label="全部" value="" />
-      <el-option v-for="(item, index) in listSelect" :key="index" :label="item.label" :value="item.value" />
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
   </el-form-item>
 </template>
 
 <script setup>
-import { useFormStore } from "@/store/formation.js";
-import {submitItem} from "@/api/index.js";
-const store = useFormStore()
+import { isNotEmpty } from '@/utils/tools.js'
+import { fieldLabel, fieldPlaceholder, isMultipleField } from './fieldProps.js'
 
 const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => {}
+  modelValue: {
+    type: [String, Number, Boolean, Array],
+    default: ''
   },
+  field: {
+    type: Object,
+    default: () => ({})
+  },
+  options: {
+    type: Array,
+    default: () => []
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  }
 })
-const value = ref(null)
-const listSelect = ref([])
-const emit = defineEmits(['changeFn']);
 
-const state = shallowRef({
-  label: props.attributes.show ? props.attributes.label : '',
-  labelWidth: props.attributes.labelWidth,
-  multiple: props.attributes.type === 'Array' ? true : false,
-  placeholder: '请选择' + props.attributes.label,
-})
+const emit = defineEmits(['update:modelValue', 'change'])
 
+const emitValue = (value) => {
+  emit('update:modelValue', value)
+  emit('change', value)
+}
 
 const changeSelect = (param) => {
-  let name = ''
-  let verification = false
   if (Array.isArray(param)) {
-    verification = param.indexOf("") !== -1
-  }
-  if (param === "" || verification || param === undefined || param === []) {
-    name = verification ? '全部' : ''
-    value.value = verification ? [''] : ''
-  } else {
-    if (Array.isArray(param)) {
-      const array = listSelect.value.filter(item => param.indexOf(item.value) !== -1)
-      name = array.map(item => item.label).join("、");
-    } else {
-      const item = listSelect.value.find(item => item.value === param)
-      name = item.label || ''
+    const previousValue = Array.isArray(props.modelValue) ? props.modelValue : []
+    const previousHasAll = previousValue.includes('')
+    const nextHasAll = param.includes('')
+
+    if (!isNotEmpty(param)) {
+      emitValue([])
+      return
     }
-  }
-  store.setSearchFormRecord({ name: props.attributes.label, value: name, key: props.attributes.key })
-  store.setSearchRuleForm(value.value, props.attributes.key)
-}
-
-watch(() => store.searchRuleForm[props.attributes.key], (newVal, oldVal) => {
-  if (newVal === undefined) {
-    value.value = null
-  }
-})
-
-const fetchData = async() => {
-  const { request, list } = props.attributes
-  if (list && list.length > 0) {
-    listSelect.value = list
+    if (nextHasAll && !previousHasAll) {
+      emitValue([''])
+      return
+    }
+    if (nextHasAll && previousHasAll) {
+      emitValue(param.filter((item) => item !== ''))
+      return
+    }
+    emitValue(param)
     return
   }
-  try {
-    if (!request || !request.url || !listSelect.value) return
-    const { url, method = 'get', param = {}, label = 'label', value = 'value' } = request
-    const response = await submitItem(url, method, param)
-    if (response.code === 200) {
-      const data = response.data || response
-      listSelect.value = data.map(item => ({
-        label: item[label],
-        value: item[value]
-      }))
-    } else {
-      console.warn('API request failed:', response.message)
-    }
-  } catch (error) {
-    console.error('Fetch error:', error)
-  }
-}
-onMounted(() => {
-  if (props.attributes && props.attributes.value) {
-    value.value = props.attributes.value
-    fetchData()
-  }
-})
 
+  if (!isNotEmpty(param)) {
+    emitValue('')
+    return
+  }
+  emitValue(param)
+}
 </script>
 
 <style scoped lang="scss">

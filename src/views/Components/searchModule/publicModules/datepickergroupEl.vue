@@ -1,74 +1,75 @@
 <template>
-  <el-form-item :label="state.label" :prop="attributes.key" class="class-group-select">
-    <el-select v-model="key" :placeholder="state.placeholder" class="left-select" @change="changeSelect">
-      <el-option v-for="(item, index) in list" :key="index" :label="item.label" :value="item.value" />
+  <el-form-item :label="fieldLabel(field)" :prop="field.key" class="class-group-select">
+    <el-select v-model="dateKey" :placeholder="field.label" class="left-select" @change="emitValue">
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
-    <el-date-picker v-if="state.type === 'date'" v-model="value" type="date" class="right-select" @change="changeRange" format="YYYY-MM-DD" value-format="YYYY-MM-DD" :placeholder="state.placeholder"></el-date-picker>
-    <el-date-picker v-if="state.type === 'daterange'" v-model="value" type="daterange" class="right-select" @change="changeRange" range-separator="至" format="YYYY-MM-DD" value-format="YYYY-MM-DD" start-placeholder="起始日期" end-placeholder="截止日期" />
+    <el-date-picker
+      v-if="field.type === 'date'"
+      v-model="dateValue"
+      type="date"
+      class="right-select"
+      format="YYYY-MM-DD"
+      value-format="YYYY-MM-DD"
+      :placeholder="fieldPlaceholder(field)"
+      @change="emitValue"
+    />
+    <el-date-picker
+      v-if="field.type === 'daterange'"
+      v-model="dateValue"
+      type="daterange"
+      class="right-select"
+      range-separator="至"
+      format="YYYY-MM-DD"
+      value-format="YYYY-MM-DD"
+      start-placeholder="起始日期"
+      end-placeholder="截止日期"
+      @change="emitValue"
+    />
   </el-form-item>
 </template>
 
 <script setup>
-import { useFormStore } from "@/store/formation.js";
-const store = useFormStore()
+import { ref, watch } from 'vue'
+import { fieldLabel, fieldPlaceholder } from './fieldProps.js'
+
 const props = defineProps({
-  attributes: {
-    type: Object,
-    default: () => {}
+  modelValue: {
+    type: [Object, Array, String],
+    default: () => ({})
   },
-})
-const key = ref('')
-const value = ref(null)
-const list = ref([])
-value.value = props.attributes.type === 'daterange' ? ['', ''] : ''
-const state = shallowRef({
-  label: props.attributes.show ? props.attributes.label : '',
-  placeholder: props.attributes.label,
-  type: props.attributes.type,
-  keyHistory: '',
-  nameHistory: ''
-})
-
-const emit = defineEmits(['changeFn']);
-
-const changeSelect = (param) => {
-  if (state.value.keyHistory && state.value.keyHistory !== param ) {
-    store.setSearchRuleForm(null, state.value.keyHistory)
+  field: {
+    type: Object,
+    default: () => ({})
+  },
+  options: {
+    type: Array,
+    default: () => []
   }
-  state.value.keyHistory = param
-  setStore()
-}
+})
 
-const changeRange = (param) => {
-  value.value = param
-  setStore()
-}
+const emit = defineEmits(['update:modelValue', 'change'])
+const dateKey = ref('')
+const dateValue = ref(props.field.type === 'daterange' ? [] : '')
 
-const setStore = () => {
-  if (key.value && value.value) {
-    const index = list.value.findIndex(item => item.value === key.value)
-    let name = list.value[index].label + ":" + value.value
-    if (Array.isArray(value.value)){
-      name = list.value[index].label + ":" + value.value.join("/")
+const syncValue = (value) => {
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      dateKey.value = ''
     }
-    store.setSearchFormRecord({ name: props.attributes.label, value: name, key: props.attributes.key })
-    store.setSearchRuleForm(value.value, key.value)
-  } else {
-    store.setSearchFormRecord({ name: props.attributes.label, value: null, key: props.attributes.key })
-    store.setSearchRuleForm(null, key.value)
+    dateValue.value = value
+    return
   }
+  dateKey.value = value?.key || ''
+  dateValue.value = value?.value || (props.field.type === 'daterange' ? [] : '')
 }
 
-watch(() => store.searchRuleForm[key.value], (newVal, oldVal) => {
-  if(newVal === undefined) {
-    key.value = ''
-    value.value = ['', '']
-  }
-})
+watch(() => props.modelValue, syncValue, { immediate: true, deep: true })
 
-onMounted(() => {
-  list.value = props.attributes.list || []
-})
+const emitValue = () => {
+  const value = dateKey.value && dateValue.value ? { key: dateKey.value, value: dateValue.value } : null
+  emit('update:modelValue', value)
+  emit('change', value)
+}
 
 </script>
 

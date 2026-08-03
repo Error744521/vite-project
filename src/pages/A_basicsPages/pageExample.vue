@@ -1,7 +1,7 @@
 <template>
   <div class="index-content-page">
     <div class="module_page">
-      <searchModule :show-array="state.showArray" @set-callback="getList"></searchModule>
+      <searchModule v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset"></searchModule>
       <div class="card module_card">
         <div class="class-flex">
           <div class="class-flex-left">
@@ -74,30 +74,23 @@
 import searchModule from '@views/Components/searchModule/index.vue'
 import IndexTable from '@/components/index-table.vue'
 import { submitItem } from '@/api/index.js'
-import { useFormStore } from '@/store/formation.js'
-const store = useFormStore()
 const tableData = ref([])
 const state = reactive({
-  showArray: [
-    { label: '', array: { company_name: true, credit_code: true, link_man: true, link_phone: true } },
-    { label: '风险信息', array: { industry_id: true, company_status: true, company_type_ids: true, time_type: true } },
+  searchModel: {},
+  searchParams: { page: 1, pagesize: 15 },
+  searchGroups: [
+    { label: '', fields: ['company_name', 'credit_code', 'link_man', 'link_phone'] },
+    { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
     {
       label: '筛选信息',
-      array: { org_id: true, target_type: true, area_ids: true, create_at: true, time_period: true }
+      fields: ['org_id', 'target_type', 'area_ids', 'create_at', 'time_period']
     },
     {
       label: '数据条件',
-      array: {
-        inclusion_mode: true,
-        rang_flag: true,
-        send_flag: true,
-        supervision: true,
-        live_auth_type: true,
-        live_delivery_method: true
-      }
+      fields: ['inclusion_mode', 'rang_flag', 'send_flag', 'supervision', 'live_auth_type', 'live_delivery_method']
     },
-    { label: '主播类型', array: { live_user_cate: true } },
-    { label: '带货品类', array: { live_goods_cate: true } }
+    { label: '主播类型', fields: ['live_user_cate'] },
+    { label: '带货品类', fields: ['live_goods_cate'] }
   ],
   information: {
     company_name: '342',
@@ -203,10 +196,10 @@ const columns = ref([
   { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
 ])
 
-const getList = () => {
-  const param = store.getSearchRuleForm || { page: 1 }
+const getList = (param = state.searchParams, replace = false) => {
+  state.searchParams = replace ? { ...param } : { ...state.searchParams, ...param }
   loading.value = true
-  submitItem('/v1/websites', 'get', param).then((res) => {
+  submitItem('/v1/websites', 'get', state.searchParams).then((res) => {
     loading.value = false
     if (res.code === 200) {
       tableData.value = res.data
@@ -219,14 +212,21 @@ const getList = () => {
     }
   })
 }
+const handleSearch = (params) => {
+  getList({ ...params, page: 1 }, true)
+}
+const handleReset = (params) => {
+  state.searchModel = {}
+  getList({ ...params, page: 1 }, true)
+}
 const handleCallback = (key, val) => {
   if (key === 'page' || key === 1) {
     state.meta.page = val
-    getList()
+    getList({ page: val })
   }
   if (key === 'size') {
     state.meta.pageSize = val
-    getList()
+    getList({ pagesize: val })
   }
 }
 onMounted(() => {

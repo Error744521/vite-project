@@ -1,18 +1,32 @@
 <template>
   <div class="class-flex">
-    <p class="class-flex-title" v-show="items.length > 0">筛选条件：</p>
+    <p class="class-flex-title" v-show="searchCriteria.length > 0">筛选条件：</p>
     <ul class="class-flex-centent ellipsis">
-      <li v-for="item in items" :key="item.key">{{item.value}}<span>|</span></li>
+      <li v-for="(item, index) in searchCriteria" :key="index">{{item.value}}<span>|</span></li>
     </ul>
   </div>
 </template>
 
 <script setup>
-defineProps({
-  items: {
-    type: Array,
-    default: () => []
+import { useFormStore } from "@/store/formation.js";
+const store = useFormStore()
+const searchCriteria = ref([])
+const props = defineProps({
+  attributes: {
+    type: Object,
+    default: () => {}
+  },
+})
+watch(() => store.searchCondition.length, (newVal, oldVal) => {
+  if (newVal === 0) {
+    searchCriteria.value = []
+  } else {
+    searchCriteria.value = store.getSearchCondition
   }
+})
+
+onMounted(() => {
+  searchCriteria.value = store.getSearchCondition || []
 })
 </script>
 

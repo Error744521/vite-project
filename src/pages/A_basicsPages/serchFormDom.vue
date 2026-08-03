@@ -6,7 +6,7 @@
       <el-button type="primary" @click="switchFn"> 切换</el-button>
     </div>
     <div class="form-wrapper">
-      <search-form :formData="formFields" @setCallback="handleSubmit" />
+      <search-form v-model="formModel" :groups="searchGroups" @search="handleSubmit" @reset="handleSubmit" />
     </div>
     <div class="form-preview">
       <h3>表单数据预览</h3>
@@ -19,15 +19,15 @@
 import SearchForm from '@views/Components/searchModule/index.vue'
 import { ref, onMounted } from 'vue'
 
-const formFields = ref([
-  { label: '输入类型', Options: { company_name: true, industry_id: true, area_id: true, area_ids: true } },
-  { label: '选中类型', Options: { org_id: true, target_type: true, company_status: true, company_type_ids: true, inclusion_mode: true  } },
-  { label: '日期类型', Options: { area_ids: true, create_at: true,  time_period: true,  updateDate: true, time_type: true, } },
-  { label: '单/复 型', Options: { send_flag: true, rang_flag: true, supervision: true, live_auth_type: true, live_delivery_method: true, } },
-  { label: '主播类型', Options: { live_user_cate: true, } },
-  { label: '带货品类', Options: { live_goods_cate: true } },
+const searchGroups = ref([
+  { label: '输入类型', fields: ['company_name', 'industry_id', 'area_id', 'area_ids'] },
+  { label: '选中类型', fields: ['org_id', 'target_type', 'company_status', 'company_type_ids', 'inclusion_mode'] },
+  { label: '日期类型', fields: ['area_ids', 'create_at', 'time_period', 'updateDate', 'time_type'] },
+  { label: '单/复 型', fields: ['send_flag', 'rang_flag', 'supervision', 'live_auth_type', 'live_delivery_method'] },
+  { label: '主播类型', fields: ['live_user_cate'] },
+  { label: '带货品类', fields: ['live_goods_cate'] },
 ])
-//const formFields = ref( { inclusion_mode: true, rang_flag: true, send_flag: true, supervision: true, live_auth_type: true, live_delivery_method: true })
+const formModel = ref({})
 const formData = ref({})
 const handleSubmit = (data) => {
   formData.value = data
@@ -35,13 +35,13 @@ const handleSubmit = (data) => {
 }
 
 const switchFn = () => {
-  formFields.value = [
-    { label: '', Options: { company_name: true } },
-    { label: '风险信息', Options: { industry_id: true, company_status: true, company_type_ids: true, time_type: true  } },
-    { label: '筛选信息', Options: { org_id: true, target_type: true, area_ids: true, create_at: true, time_period: true } },
-    { label: '数据条件', Options: { inclusion_mode: true, rang_flag: true, send_flag: true, supervision: true, live_auth_type: true, live_delivery_method: true, } },
-    { label: '主播类型', Options: { live_user_cate: true, } },
-    { label: '带货品类', Options: { live_goods_cate: true } },
+  searchGroups.value = [
+    { label: '', fields: ['company_name'] },
+    { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
+    { label: '筛选信息', fields: ['org_id', 'target_type', 'area_ids', 'create_at', 'time_period'] },
+    { label: '数据条件', fields: ['inclusion_mode', 'rang_flag', 'send_flag', 'supervision', 'live_auth_type', 'live_delivery_method'] },
+    { label: '主播类型', fields: ['live_user_cate'] },
+    { label: '带货品类', fields: ['live_goods_cate'] },
   ]
 }
 

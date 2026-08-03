@@ -4,7 +4,7 @@
       <page-header :type="1" :list="state.menuArray" />
     </el-affix>
     <div class="module_page">
-      <search-form :keys="'registerBody'" :formData="state.formFields" @setCallback="handleSubmit" />
+      <search-form keys="registerBody" v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset" />
       <!--    <div class="card module_card">
       <div class="class-flex">
         <div class="class-flex-left">
@@ -61,66 +61,30 @@
 </template>
 
 <script setup>
-import {submitItem} from '@/api/index.js'
-import {useFormStore} from '@/store/formation.js'
+import { submitItem } from '@/api/index.js'
 import SearchForm from '@views/Components/searchModule/index.vue'
 
-const store = useFormStore()
 const tableData = ref([])
 const state = reactive({
-  menuArray: [{label: '在网主体库', value: '1', show: true, url: '/v1/companies'}, {
-    label: '登记主体库',
-    value: '2',
-    show: true,
-    url: '/v1/companies'
-  }, {label: '认领库', value: '3', show: true, url: '/v1/companies/claims'}, {
-    label: '不能确认主体',
-    value: '4',
-    show: true,
-    url: '/v1/takeouts'
-  }],
-  formFields: [{
+  menuArray: [
+    {label: '在网主体库', value: '1', show: true, url: '/v1/companies'},
+    {label: '登记主体库', value: '2', show: true, url: '/v1/companies'},
+    {label: '认领库', value: '3', show: true, url: '/v1/companies/claims'},
+    {label: '不能确认主体', value: '4', show: true, url: '/v1/takeouts'}
+  ],
+  searchModel: {},
+  searchParams: { page: 1, pagesize: 15 },
+  searchGroups: [{
     label: '',
-    Options: {
-      company_name: true,
-      credit_code: true,
-      scope_name: true,
-      company_address: true,
-      label_name: true,
-      inclusion_mode: true,
-      updateDate: true
-    }
+    fields: ['company_name', 'credit_code', 'scope_name', 'company_address', 'label_name', 'inclusion_mode', 'updateDate']
   }, {
     label: '筛选信息',
-    Options: {
-      industry_id: true,
-      org_id: true,
-      company_status: true,
-      capital: true,
-      company_type_ids: true,
-      platform_id: true
-    }
+    fields: ['industry_id', 'org_id', 'company_status', 'capital', 'company_type_ids', 'platform_id']
   }, {
     label: '风险信息',
-    Options: {punish_flag: true, complaint_flag: true, abnormal_flag: true, credit_level: true, risk_level: true}
+    fields: ['punish_flag', 'complaint_flag', 'abnormal_flag', 'credit_level', 'risk_level']
   }],
-  information: {
-    company_name: '342',
-    credit_code: '123',
-    platform_id: 176460,
-    takeout_category_id: [1],
-    flag: '',
-    category_id: [1, 3],
-    is_trade: '',
-    monitor_frequency_flag: 1,
-    start_time: '2025-12-26',
-    date_range: ['2025-12-12', '2025-12-26'],
-    behavior_id: [],
-    label_id: '',
-    link_address: '',
-    file_path: '',
-    image_path: ''
-  },
+  information: { company_name: '342', credit_code: '123', platform_id: 176460, takeout_category_id: [1], flag: '', category_id: [1, 3], is_trade: '', monitor_frequency_flag: 1, start_time: '2025-12-26', date_range: ['2025-12-12', '2025-12-26'], behavior_id: [], label_id: '', link_address: '', file_path: '', image_path: '' },
   loading: false,
   meta: {},
   params: {
@@ -155,19 +119,8 @@ const state = reactive({
     Screenshot: { url: '', methods: 'post', param: { dataType: 3 } }
   },
   screeData: {
-    sorting: {
-      url: '',
-      methods: 'post',
-      list: [
-        { label: '默认', value: '' },
-        { label: '正序', value: 1 },
-        { label: '倒序', value: -1 }
-      ]
-    },
-    select: {
-      url: '',
-      methods: 'post',
-      list: [
+    sorting: {url: '', methods: 'post', list: [{ label: '默认', value: '' }, { label: '正序', value: 1 }, { label: '倒序', value: -1 }]},
+    select: {url: '', methods: 'post', list: [
         { label: '默认', value: '' },
         { label: '载体数', value: 1 },
         { label: '处罚', value: 2 },
@@ -193,10 +146,10 @@ const columns = ref([
   { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
 ])
 
-const getList = () => {
-  const param = store.getSearchRuleForm || { page: 1 }
+const getList = (param = state.searchParams, replace = false) => {
+  state.searchParams = replace ? { ...param } : { ...state.searchParams, ...param }
   loading.value = true
-  submitItem('/v1/websites', 'get', param).then((res) => {
+  submitItem('/v1/websites', 'get', state.searchParams).then((res) => {
     loading.value = false
     if (res.code === 200) {
       tableData.value = res.data
@@ -210,14 +163,23 @@ const getList = () => {
   })
 }
 
+const handleSearch = (params) => {
+  getList({ ...params, page: 1 }, true)
+}
+
+const handleReset = (params) => {
+  state.searchModel = {}
+  getList({ ...params, page: 1 }, true)
+}
+
 const handleSubmit = (key, val) => {
   if (key === 'page' || key === 1) {
     state.meta.page = val
-    getList()
+    getList({ page: val })
   }
   if (key === 'size') {
     state.meta.pageSize = val
-    getList()
+    getList({ pagesize: val })
   }
 }
 

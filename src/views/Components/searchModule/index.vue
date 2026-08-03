@@ -3,24 +3,18 @@
     <span class="iconScreening" @click="handleOpen(switchKG)">
       <i :class="['iconfont', switchKG ? 'icon-menu-up' : 'icon-menu-down']"></i>
     </span>
-    <el-form
-      ref="ruleForm"
-      :model="ruleForm"
-      :inline="true"
-      :label-width="props.width"
-      :class="[switchKG ? 'demo-form-inline' : 'demo-form-block']"
-    >
-      <div class="formFlex" v-for="(group, index) in formFields" :key="index">
+    <el-form :model="formModel" :inline="true" :label-width="props.width" :class="[switchKG ? 'demo-form-inline' : 'demo-form-block']">
+      <div class="formFlex" v-for="(group, index) in normalizedGroups" :key="index">
         <p class="formFlex-label" v-if="group.label">{{ group.label }}：</p>
-        <div class="formFlex-list" v-if="group.Options && group.Options.length > 0">
-          <p class="p-line" v-for="(field, fieldIndex) in group.Options" :key="fieldIndex">
-            <component :is="getComponent(field.component)" :attributes="field.attributes" />
+        <div class="formFlex-list" v-if="group.fields && group.fields.length > 0">
+          <p class="p-line" v-for="field in group.fields" :key="field.key">
+            <component :is="getComponent(field.component)" v-model="formModel[field.key]" :field="field" :options="optionsMap[field.key] || []" :loading="loadingMap[field.key] || false" :load-options="loadOptions" @change="handleFieldChange(field, $event)"/>
           </p>
         </div>
       </div>
     </el-form>
     <div class="class-search-btn">
-      <searchCriteria class="flexWidth" ref="searchRef"></searchCriteria>
+      <searchCriteria class="flexWidth" :items="criteriaList"></searchCriteria>
       <el-form-item label="" class="flexForm">
         <el-button type="primary" @click="onSubmit" :icon="Search">搜索</el-button>
         <el-button @click="onRefresh" :icon="Refresh">重置</el-button>
@@ -29,35 +23,46 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { useFormStore } from '@/store/formation.js'
+import { ref, watch } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import components from './index.js'
 import searchCriteria from './publicModules/searchCriteria.vue'
 import searchFormFn from '@views/Components/searchModule/public.js'
+import { buildCriteriaList } from './core/searchCriteria.js'
+import { flattenSearchGroups, normalizeSearchConfig } from './core/normalizeSearchConfig.js'
+import { buildSearchParams, createInitialModel } from './core/searchValue.js'
+import { loadFieldOptions } from './core/searchOptions.js'
 
-const store = useFormStore()
-const emit = defineEmits(['setCallback'])
+const emit = defineEmits(['search', 'reset', 'change', 'update:modelValue'])
 const getComponent = (name) => components[name]
 const props = defineProps({
-  formData: { type: Array, default: () => [] },
-  width: { type: String, default: () => {} },
+  modelValue: { type: Object, default: () => ({}) },
+  groups: { type: Array, default: () => [] },
+  width: { type: String, default: '' },
   show: { type: Boolean, default: false },
   keys: { type: String, default: () => 'public' }
 })
-const ruleForm = ref({})
 const loading = ref(false)
+const loadingMap = ref({})
 const switchKG = ref(false)
-const formFields = ref([])
+const normalizedGroups = ref([])
+const fields = ref([])
+const formModel = ref({})
+const optionsMap = ref({})
+const criteriaList = ref([])
 
 const onSubmit = () => {
-  ruleForm.value = { ...store.getSearchRuleForm, page: 1, pagesize: 15 }
-  emit('setCallback', ruleForm.value)
+  const params = { ...buildSearchParams(formModel.value, fields.value), page: 1, pagesize: 15 }
+  emit('update:modelValue', { ...formModel.value })
+  emit('search', params)
 }
 
 const onRefresh = () => {
-  ruleForm.value = {}
-  store.clearRuleForm()
+  formModel.value = createInitialModel(fields.value)
+  criteriaList.value = []
+  const params = { page: 1, pagesize: 15 }
+  emit('update:modelValue', { ...formModel.value })
+  emit('reset', params)
 }
 
 const handleOpen = (status) => {
@@ -66,32 +71,62 @@ const handleOpen = (status) => {
 
 const loadFormFields = async () => {
   const ObjectForm = await searchFormFn(props.keys)
-  const setObj = (param) => {
-    const keys = Object.keys(param)
-    return keys.reduce((acc, key) => {
-      if (ObjectForm[key] && ObjectForm[key].attributes) {
-        const field = { ...ObjectForm[key] }
-        field.attributes = { ...field.attributes, labelShow: props.show, labelWidth: props.width }
-        acc.push(field)
-      }
-      return acc
-    }, [])
-  }
+  normalizedGroups.value = normalizeSearchConfig({
+    groups: props.groups,
+    fieldMap: ObjectForm,
+    labelShow: props.show,
+    labelWidth: props.width
+  })
+  fields.value = flattenSearchGroups(normalizedGroups.value)
+  formModel.value = { ...createInitialModel(fields.value), ...props.modelValue }
+  await loadAllOptions()
+  updateCriteria()
+}
 
-  if (Object.prototype.toString.call(ObjectForm) === '[object Object]') {
-    if (Array.isArray(props.formData)) {
-      formFields.value = props.formData.map((item) => ({ ...item, Options: setObj(item.Options) }))
-    } else {
-      formFields.value = [{ label: '', Options: setObj(props.formData) }]
-    }
+const loadOptions = async (field, extraParam = {}) => {
+  loadingMap.value[field.key] = true
+  try {
+    const options = await loadFieldOptions(field, extraParam)
+    optionsMap.value[field.key] = options
+    return options
+  } catch {
+    optionsMap.value[field.key] = []
+    return []
+  } finally {
+    loadingMap.value[field.key] = false
   }
 }
 
-watch([() => props.keys, () => props.formData], loadFormFields, { immediate: true })
+const loadAllOptions = async () => {
+  loading.value = true
+  try {
+    const initFields = fields.value.filter((field) => field.component !== 'cascaderLazy')
+    await Promise.all(initFields.map((field) => loadOptions(field)))
+  } finally {
+    loading.value = false
+  }
+}
 
-onMounted(() => {
-  loadFormFields()
-})
+const updateCriteria = () => {
+  criteriaList.value = buildCriteriaList(formModel.value, fields.value, optionsMap.value)
+}
+
+const handleFieldChange = (field, value) => {
+  formModel.value[field.key] = value
+  updateCriteria()
+  emit('update:modelValue', { ...formModel.value })
+  emit('change', { field, value, model: { ...formModel.value } })
+}
+
+watch(() => props.modelValue, (value) => {
+  formModel.value = { ...createInitialModel(fields.value), ...(value || {}) }
+  updateCriteria()
+}, { deep: true })
+
+watch([() => props.keys, () => props.groups], loadFormFields, { immediate: true })
 </script>
 
-<style scoped lang="scss">@use './index'; .class-search { background: $white; border-radius: 0 0 5px 5px; position: relative; margin-bottom: 10px; .iconScreening { width: 20px; height: 30px; display: block; position: absolute; right: 10px; top: 10px; cursor: pointer; i { font-size: 18px; font-weight: bold; color: $purple-color; } } .iconScreening:hover { i::after { position: absolute; top: 20px; left: -5px; width: 34px; background: $white; color: $purple-color; font-size: 10px; padding: 0 5px; border-radius: 5px; } i.icon-menu-up::after { content: '展开'; } i.icon-menu-down::after { content: '收起'; } } .formlineBlock { display: flex; flex-wrap: wrap; } .formFlex { display: flex; flex-wrap: wrap; .formFlex-label { height: 30px; line-height: 34px; width: 90px; font-size: 16px; color: $black-dark; } .formFlex-list { flex: 1; .p-line { display: inline-block; } } } .formTabBlock { display: flex; flex-wrap: wrap; } .class-search-btn { display: flex; flex-wrap: nowrap; .flexWidth { flex: 1; width: calc(100% - 200px); } .flexForm { padding-left: 10px; width: 200px; margin: 0 !important; :deep(.el-form-item__content) { justify-content: right !important; } } } .demo-form-block { height: 100%; max-height: 100%; div.formFlex { display: inline-block; } } .demo-form-inline { height: auto; min-height: 100%; max-height: 0; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); will-change: max-height, padding; div.formFlex { display: none; } &.expanded { max-height: 500px; opacity: 1; padding: 12px 0; } div:nth-child(1) { display: inline-block; } } }</style>
+<style scoped lang="scss">
+@use './index.scss';
+
+</style>

@@ -92,6 +92,26 @@ export default [
     response: () => success(companyTypeTree)
   },
   {
+    url: '/v1/labels/list',
+    method: 'get',
+    response: () =>
+      success([
+        { id: 1, label_name: '重点关注' },
+        { id: 2, label_name: '食品经营' },
+        { id: 3, label_name: '直播带货' }
+      ])
+  },
+  {
+    url: '/v1/platforms/list',
+    method: 'post',
+    response: () =>
+      success([
+        { id: 1, platform_name: '淘宝' },
+        { id: 2, platform_name: '京东' },
+        { id: 3, platform_name: '抖音电商' }
+      ])
+  },
+  {
     url: '/v1/liveuserextend/live_user_filter_can',
     method: 'get',
     response: () => success(liveFilter)

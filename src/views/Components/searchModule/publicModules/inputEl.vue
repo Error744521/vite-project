@@ -1,44 +1,35 @@
 <template>
-  <el-form-item :label="state.label" :prop="attributes.key" :label-width="state.labelWidth">
-    <el-input v-model="value" :placeholder="state.placeholder" :type="state.type" show-word-limit :maxlength="state.maxlength" @blur="changeInput" />
+  <el-form-item :label="fieldLabel(field)" :prop="field.key" :label-width="field.labelWidth">
+    <el-input
+      :model-value="modelValue"
+      :placeholder="fieldPlaceholder(field, '请输入')"
+      :type="field.type"
+      show-word-limit
+      :maxlength="field.maxlength"
+      @update:model-value="handleChange"
+    />
   </el-form-item>
 </template>
 
 <script setup>
-import { useFormStore } from "@/store/formation.js";
-const store = useFormStore()
+import { fieldLabel, fieldPlaceholder } from './fieldProps.js'
 
 const props = defineProps({
-  attributes: {
+  modelValue: {
+    type: [String, Number, Boolean],
+    default: ''
+  },
+  field: {
     type: Object,
-    default: () => {}
+    default: () => ({})
   }
 })
-const value = ref('')
-const state = shallowRef({
-  label: props.attributes.show ? props.attributes.label : '',
-  labelWidth: props.attributes.labelWidth,
-  placeholder: '请选择' + props.attributes.label,
-  maxlength: props.attributes.maxlength,
-  type: props.attributes.type
-})
+const emit = defineEmits(['update:modelValue', 'change'])
 
-const emit = defineEmits(['changeFn']);
-const changeInput = () => {
-  store.setSearchFormRecord({ name: props.attributes.label, value: value.value, key: props.attributes.key })
-  store.setSearchRuleForm(value.value, props.attributes.key)
-/*  emit('changeFn', { [props.attributes.key]: value.value } )*/
+const handleChange = (value) => {
+  emit('update:modelValue', value)
+  emit('change', value)
 }
-
-watch(() => store.searchRuleForm[props.attributes.key], (newVal, oldVal) => {
-  if (newVal === undefined) {
-    value.value = newVal
-  }
-})
-
-onMounted(() => {
-
-})
 </script>
 
 <style scoped lang="scss">

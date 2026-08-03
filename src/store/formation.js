@@ -5,6 +5,7 @@ export const useFormStore = defineStore('store', {
   state: () => {
     return {
       State: false, //重新渲染开关
+      // Legacy search state. 新版 searchModule 已改为组件内部管理搜索状态。
       searchRuleForm: {}, //搜索条件
       searchCondition: [], //查询条件
       selectionMultiple: [] //table 选中
@@ -18,14 +19,14 @@ export const useFormStore = defineStore('store', {
   actions: {
     setSearchRuleForm(param, key) {
       if (key) {
-        if (param === null || param === undefined || param === [] || param === '') {
+        if (!isNotEmpty(param)) {
           delete this.searchRuleForm[key]
         } else {
           this.searchRuleForm[key] = param
         }
       } else if (param instanceof Object) {
         Object.keys(param).forEach((keys) => {
-          if (param[keys]) {
+          if (isNotEmpty(param[keys])) {
             this.searchRuleForm[keys] = param[keys]
           } else {
             delete this.searchRuleForm[keys]
@@ -37,13 +38,13 @@ export const useFormStore = defineStore('store', {
       const array = this.searchCondition
       const index = array.findIndex((item) => item.key === target.key) // 假设每个对象都有一个唯一的id
       if (index !== -1) {
-        if (target.value) {
+        if (isNotEmpty(target.value)) {
           this.searchCondition[index] = target
         } else {
           this.searchCondition.splice(index, 1)
         }
       } else {
-        if (isNotEmpty(target.value)) return false
+        if (!isNotEmpty(target.value)) return false
         this.searchCondition.unshift(target)
       }
     },
