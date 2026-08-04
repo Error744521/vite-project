@@ -131,7 +131,7 @@
       }
     }
     .el-cascader__tags {
-      width: inherit;
+      max-width: calc(100% - 34px);
       .el-tag {
         max-width: 110px !important;
       }
@@ -143,27 +143,24 @@
     }
 }
 :deep(.class-group-select)  {
-  .el-form-item__content{
-    box-shadow: 0 0 0 1px #dcdfe6;
-    border-radius: 4px;
-  }
   .left-select {
     width: 120px;
     .el-select__wrapper{
-      box-shadow: none;
       border-radius: 4px 0  0 4px;
-      border-right: 1px solid #dcdfe6;
       padding-right: 5px;
     }
   }
   .right-select {
-    box-shadow: none;
+    border-radius: 0 4px 4px 0;
+    border-left: none;
     .el-input__wrapper, .el-select__wrapper{
-      box-shadow: none;
+      //box-shadow:;
     }
   }
   .right-select:hover{
-    box-shadow: none;
+     .el-input__wrapper, .el-select__wrapper{
+       //box-shadow: none;
+    }
   }
 }
 .el-cascader-node__prefix{

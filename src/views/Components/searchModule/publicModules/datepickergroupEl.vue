@@ -3,28 +3,11 @@
     <el-select v-model="dateKey" :placeholder="field.label" class="left-select" @change="emitValue">
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
-    <el-date-picker
-      v-if="field.type === 'date'"
-      v-model="dateValue"
-      type="date"
-      class="right-select"
-      format="YYYY-MM-DD"
-      value-format="YYYY-MM-DD"
-      :placeholder="fieldPlaceholder(field)"
-      @change="emitValue"
-    />
+    <el-date-picker v-if="field.type === 'date'"
+      v-model="dateValue" type="date" class="right-select" format="YYYY-MM-DD" value-format="YYYY-MM-DD" :placeholder="fieldPlaceholder(field)" @change="emitValue"/>
     <el-date-picker
       v-if="field.type === 'daterange'"
-      v-model="dateValue"
-      type="daterange"
-      class="right-select"
-      range-separator="至"
-      format="YYYY-MM-DD"
-      value-format="YYYY-MM-DD"
-      start-placeholder="起始日期"
-      end-placeholder="截止日期"
-      @change="emitValue"
-    />
+      v-model="dateValue" type="daterange" class="right-select" range-separator="至" format="YYYY-MM-DD" value-format="YYYY-MM-DD" start-placeholder="起始日期" end-placeholder="截止日期" @change="emitValue"/>
   </el-form-item>
 </template>
 

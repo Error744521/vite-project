@@ -1,6 +1,7 @@
 <template>
   <el-form-item :label="fieldLabel(field)" :prop="field.key">
     <el-cascader
+      class="search-form-cascader"
       :model-value="modelValue"
       :options="options"
       :props="cascaderProps"
@@ -11,6 +12,7 @@
       clearable
       show-checked-strategy="child"
       @update:model-value="handleChange"
+      @clear="handleClear"
     />
   </el-form-item>
 </template>
@@ -46,18 +48,37 @@ const handleChange = (value) => {
   emit('update:modelValue', value)
   emit('change', value)
 }
+
+const handleClear = () => {
+  const value = isMultipleField(props.field) ? [] : ''
+  emit('update:modelValue', value)
+  emit('change', value)
+}
 </script>
 
 <style scoped lang="scss">
 .search-form-cascader {
-  .el-cascader-node__prefix {
-    position: absolute !important;
-  }
+  width: 220px;
 }
-:deep(.el-cascader__tags) {
+:deep(.search-form-cascader .el-cascader__tags) {
   flex-wrap: nowrap;
+  max-width: calc(100% - 34px);
+  z-index: 1;
+  pointer-events: none;
 }
-:deep(.cascader__tags) {
-  width: initial;
+:deep(.search-form-cascader .el-cascader__tags .el-tag) {
+  pointer-events: auto;
+}
+:deep(.search-form-cascader .el-cascader__tags .el-tag__close) {
+  pointer-events: auto;
+}
+:deep(.search-form-cascader .el-input__suffix) {
+  z-index: 3;
+}
+:deep(.search-form-cascader .el-input__suffix-inner) {
+  z-index: 4;
+}
+:deep(.el-cascader-node__prefix) {
+  position: absolute !important;
 }
 </style>
