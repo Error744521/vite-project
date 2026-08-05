@@ -6,7 +6,7 @@
       <el-button type="primary" @click="switchFn"> 切换</el-button>
     </div>
     <div class="form-wrapper">
-      <search-form v-model="formModel" :groups="searchGroups" @search="handleSubmit" @reset="handleSubmit" />
+      <search-form v-model="formModel" :groups="searchGroups" @search="handleSubmit" @reset="handleReset" />
     </div>
     <div class="form-preview">
       <h3>表单数据预览</h3>
@@ -32,6 +32,11 @@ const formData = ref({})
 const handleSubmit = (data) => {
   formData.value = data
   alert('表单验证通过！\n\n' + JSON.stringify(data, null, 2))
+}
+
+const handleReset = () => {
+  formModel.value = {}
+  formData.value = {}
 }
 
 const switchFn = () => {

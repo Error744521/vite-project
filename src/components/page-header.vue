@@ -12,6 +12,10 @@ import { useRouter } from "vue-router";
 const router = useRouter()
 const emit = defineEmits(['callback'])
 const props = defineProps({
+  loading: {
+    type: [Boolean, Number],
+    default: false
+  },
   type: {
     type: [String, Number],
     default: 1
@@ -31,7 +35,6 @@ onMounted(() => {
   if (Array.isArray(props.list)) {
     handletype.value = props.list[0].value
   }
-
 })
 </script>
 

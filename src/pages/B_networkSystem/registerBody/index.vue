@@ -1,11 +1,11 @@
 <template>
-  <div class="index-content-page">
-    <el-affix target=".index-content-page" :offset="0">
-      <page-header :type="1" :list="state.menuArray" />
-    </el-affix>
-    <div class="module_page">
-      <search-form keys="registerBody" v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset" />
-      <!--    <div class="card module_card">
+<div class="index-content-page">
+  <el-affix target=".index-content-page" :offset="0">
+    <page-header :type="1" :loading="loading" :list="state.menuArray" />
+  </el-affix>
+  <div class="module_page">
+    <search-form keys="B_networkSystem" v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset" />
+    <div class="card module_card">
       <div class="class-flex">
         <div class="class-flex-left">
           <index-total :data="state.totalData" />
@@ -18,46 +18,46 @@
         </div>
       </div>
       <index-table class="class-table" v-loading="loading" :tableData="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleSubmit">
-        <template #flag="{ row }">
-          <span v-if="row.flag === '1'">非交易网站</span>
-          <span v-else>交易网站</span>
-        </template>
-        <template #label_names="{ row }">
-          <el-popover trigger="hover" placement="top" :disabled="row.label_names ? false : true">
-            <p>{{ row.label_names }}</p>
-            <template #reference>
-              <div class="name-wrapper oneline">
-                <Edit class="hover icon-size" @click="getlabelTab(row)" /> {{ row.label_names }}
-              </div>
-            </template>
-          </el-popover>
-        </template>
-        <template #company_name="{ row }">
-          <el-popover trigger="hover" placement="top" :disabled="row.company_name ? false : true">
-            <p>{{ row.company_name }}</p>
-            <p>{{ row.org_name }}</p>
-            <p>{{ row.company_address }}</p>
-            <template #reference>
-              <div class="name-wrapper oneline">{{ row.company_name }}</div>
-            </template>
-          </el-popover>
-        </template>
-        <template #operation="{ row }">
-          <el-button  type="primary" link >详情</el-button> &lt;!&ndash; @click="detailLook(row)" &ndash;&gt;
-          <el-popover trigger="hover" placement="top">
-            <el-button  type="primary" link size="small">转平台</el-button> &lt;!&ndash; @click="reverseItem(row.id)" &ndash;&gt;
-            <el-button  type="primary" link size="small">异常</el-button> &lt;!&ndash; @click="setItemBrank(row.id, row.unusual_flag)" &ndash;&gt;
-            <el-button  type="primary" link size="small">删除</el-button> &lt;!&ndash; @click="deleteItem(row.id)" &ndash;&gt;
-            <el-button type="primary" link size="small"></el-button> &lt;!&ndash; {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" &ndash;&gt;
-            <template #reference>
-              <div class="class-more-font-style">更多>></div>
-            </template>
-          </el-popover>
-        </template>
-      </index-table >
-    </div>-->
+      <template #flag="{ row }">
+        <span v-if="row.flag === '1'">非交易网站</span>
+        <span v-else>交易网站</span>
+      </template>
+      <template #label_names="{ row }">
+        <el-popover trigger="hover" placement="top" :disabled="row.label_names ? false : true">
+          <p>{{ row.label_names }}</p>
+          <template #reference>
+            <div class="name-wrapper oneline">
+              <Edit class="hover icon-size" @click="getlabelTab(row)" /> {{ row.label_names }}
+            </div>
+          </template>
+        </el-popover>
+      </template>
+      <template #company_name="{ row }">
+        <el-popover trigger="hover" placement="top" :disabled="row.company_name ? false : true">
+          <p>{{ row.company_name }}</p>
+          <p>{{ row.org_name }}</p>
+          <p>{{ row.company_address }}</p>
+          <template #reference>
+            <div class="name-wrapper oneline">{{ row.company_name }}</div>
+          </template>
+        </el-popover>
+      </template>
+      <template #operation="{ row }">
+        <el-button  type="primary" link >详情</el-button> <!-- @click="detailLook(row)" -->
+        <el-popover trigger="hover" placement="top">
+          <el-button  type="primary" link size="small">转平台</el-button> <!-- @click="reverseItem(row.id)" -->
+          <el-button  type="primary" link size="small">异常</el-button> <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
+          <el-button  type="primary" link size="small">删除</el-button> <!-- @click="deleteItem(row.id)" -->
+          <el-button type="primary" link size="small"></el-button> <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
+          <template #reference>
+            <div class="class-more-font-style">更多>></div>
+          </template>
+        </el-popover>
+      </template>
+    </index-table >
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
@@ -65,6 +65,7 @@ import { submitItem } from '@/api/index.js'
 import SearchForm from '@views/Components/searchModule/index.vue'
 
 const tableData = ref([])
+const defaultSearchParams = { page: 1, pagesize: 15 }
 const state = reactive({
   menuArray: [
     {label: '在网主体库', value: '1', show: true, url: '/v1/companies'},
@@ -73,7 +74,7 @@ const state = reactive({
     {label: '不能确认主体', value: '4', show: true, url: '/v1/takeouts'}
   ],
   searchModel: {},
-  searchParams: { page: 1, pagesize: 15 },
+  searchParams: { ...defaultSearchParams },
   searchGroups: [{
     label: '',
     fields: ['company_name', 'credit_code', 'scope_name', 'company_address', 'label_name', 'inclusion_mode', 'updateDate']
@@ -167,9 +168,10 @@ const handleSearch = (params) => {
   getList({ ...params, page: 1 }, true)
 }
 
-const handleReset = (params) => {
+const handleReset = () => {
   state.searchModel = {}
-  getList({ ...params, page: 1 }, true)
+  state.searchParams = { ...defaultSearchParams }
+  getList(state.searchParams, true)
 }
 
 const handleSubmit = (key, val) => {
@@ -179,7 +181,7 @@ const handleSubmit = (key, val) => {
   }
   if (key === 'size') {
     state.meta.pageSize = val
-    getList({ pagesize: val })
+    getList({ page: 1, pagesize: val })
   }
 }
 

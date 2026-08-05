@@ -75,9 +75,10 @@ import searchModule from '@views/Components/searchModule/index.vue'
 import IndexTable from '@/components/index-table.vue'
 import { submitItem } from '@/api/index.js'
 const tableData = ref([])
+const defaultSearchParams = { page: 1, pagesize: 15 }
 const state = reactive({
   searchModel: {},
-  searchParams: { page: 1, pagesize: 15 },
+  searchParams: { ...defaultSearchParams },
   searchGroups: [
     { label: '', fields: ['company_name', 'credit_code', 'link_man', 'link_phone'] },
     { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
@@ -215,9 +216,10 @@ const getList = (param = state.searchParams, replace = false) => {
 const handleSearch = (params) => {
   getList({ ...params, page: 1 }, true)
 }
-const handleReset = (params) => {
+const handleReset = () => {
   state.searchModel = {}
-  getList({ ...params, page: 1 }, true)
+  state.searchParams = { ...defaultSearchParams }
+  getList(state.searchParams, true)
 }
 const handleCallback = (key, val) => {
   if (key === 'page' || key === 1) {
@@ -226,7 +228,7 @@ const handleCallback = (key, val) => {
   }
   if (key === 'size') {
     state.meta.pageSize = val
-    getList({ pagesize: val })
+    getList({ page: 1, pagesize: val })
   }
 }
 onMounted(() => {

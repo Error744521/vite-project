@@ -151,15 +151,18 @@
     }
   }
   .right-select {
-    border-radius: 0 4px 4px 0;
-    border-left: none;
     .el-input__wrapper, .el-select__wrapper{
-      //box-shadow:;
+      border-radius: 0 4px 4px 0;
+      border: 1px solid #ebeef5;
+      border-left: none;
+      box-shadow: none;
     }
   }
   .right-select:hover{
      .el-input__wrapper, .el-select__wrapper{
-       //box-shadow: none;
+       border: 1px solid #ddd;
+       border-left: none;
+       box-shadow: none;
     }
   }
 }
