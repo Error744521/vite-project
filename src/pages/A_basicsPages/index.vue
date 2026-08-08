@@ -1,10 +1,12 @@
 <template>
   <div class="el-page-class">
-    <el-header><IndexHeader @changeDomH="changeDomH"></IndexHeader></el-header>
+    <el-header><MianHeader @changeDomH="changeDomH"></MianHeader></el-header>
     <el-container>
-      <el-aside :class="[showHeight ? 'domeHeight' : '']"><IndexMenu></IndexMenu></el-aside>
+      <el-aside :class="[showHeight ? 'domeHeight' : '']">
+        <MainMenu></MainMenu>
+      </el-aside>
       <el-main :class="[showHeight ? 'domeHeight' : '']">
-        <IndexTabs @reload="reload"></IndexTabs>
+        <MainTabs @reload="reload"></MainTabs>
         <div class="main-content">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <keep-alive>
@@ -19,8 +21,6 @@
 </template>
 
 <script setup>
-import {provide, ref, nextTick} from 'vue'
-
 const showHeight = ref(true)
 const changeDomH = (param) => {
   if (param === 80) {

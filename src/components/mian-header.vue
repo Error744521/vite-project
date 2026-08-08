@@ -44,7 +44,7 @@
 import { useSystemStore } from "@/store/system.js";
 import { submitItem } from "@/api/index.js";
 import { useRoute, useRouter } from "vue-router";
-import { isLinks } from "@/utils/tools.js"
+import { isUrl } from "@/utils/tools.js"
 import PasswordDialog from "@views/Operation/PasswordDialog.vue";
 
 const route = useRoute()
@@ -94,7 +94,7 @@ const getSyslist = (param) => {
 const tabMenu = (param, type) => {
   state.sysExpand = false
   state.selectindex = param.id
-  if (isLinks(param.url)) {
+  if (isUrl(param.url)) {
    window.open(param.url)
   } else {
     state.userInfo.system_id = param.id

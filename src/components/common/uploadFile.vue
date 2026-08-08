@@ -6,7 +6,7 @@
              :before-upload="beforeUpload"
              :accept="itemData.accept || '.xls,.xlsx'">
     <el-button type="primary" :icon="itemData.icon || 'UploadFilled'">{{itemData.text || '上传'}}</el-button>
-    <template #tip v-if="props.tip">
+    <template #tip v-if="tipShow">
       <div class="el-upload__tip">
         {{props.accept}} 文件不能超过 500kb
       </div>
@@ -20,6 +20,10 @@ import { ElMessage } from 'element-plus'
 import { useSystemStore } from '@/store/system.js'
 const stare = useSystemStore()
 const props = defineProps({
+  tipShow: {
+    type: [ String, Boolean],
+    default: () => false
+  },
   itemData: {
     type: Object,
     default: () => {}

@@ -21,8 +21,8 @@ const state = ref({
 })
 
 const fetchData = async () => {
-  if (props.attributes.list && props.attributes.list.length > 0) {
-    state.value.list = props.attributes.list
+  if (props.attributes.options && props.attributes.options.length > 0) {
+    state.value.list = props.attributes.options
   } else {
     state.value.list = [
       { label: '选项1', value: '1' },

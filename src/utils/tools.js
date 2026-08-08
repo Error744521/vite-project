@@ -73,7 +73,7 @@ export function removeStorage(key) {
   localStorage.removeItem(key)
 }
 
-export function getSession(key) {
+export function getSession(key, defaultValue = null) {
   const raw = sessionStorage.getItem(key)
   if (raw === null) return defaultValue
   try {
@@ -97,18 +97,6 @@ export function isNotEmpty(obj) {
   if (typeof obj === 'object') return Object.keys(obj).length > 0
   return true
 }
-/**
- * value http/https 链接
- * return  false  value 为空  true 为 正确的url */
-export function isLinks(value) {
-  if (value === '') return false
-  const regText = /^(http:|https:)\/\/([\w-]+\.)+[\w-]+(\/[\w-./?%&=]*)?$/
-  if (regText.test(value)) {
-    return true
-  } else {
-    return false
-  }
-}
 /** value 复制内容   */
 export function getlocation() {
   const param = window.location
@@ -117,7 +105,7 @@ export function getlocation() {
 /** value 复制内容 */
 export async function copyName(value) {
   try {
-    await navigator.clipboard.writeText(text)
+    await navigator.clipboard.writeText(value)
     ElNotification({
       title: '复制成功',
       message: '内容已复制到剪贴板',
@@ -135,6 +123,11 @@ export async function copyName(value) {
 export function goPage(url) {
   window.open(url)
 }
+
+
+
+
+
 /* 时间格式设置 */
 export const formatDate = (date, format = 'YYYY-MM-DD HH:mm:ss') => {
   if (!date) return ''
@@ -211,10 +204,11 @@ function deepClone(obj) {
   return cloneObj
 }
 
-/* 是否是URL */
+/** 是否是 http/https 链接 */
 export const isUrl = (url) => {
-  const reg = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
-  return reg.test(url)
+  if (!url) return false
+  const reg = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-./?%&=]*)?$/
+  return reg.test(String(url).trim())
 }
 /* 除字符串中的空白字符 左 右 俩边 全部 */
 export const trim = (str, type = 'both') => {
@@ -258,4 +252,49 @@ export const parseEnvArray = (val, fallback = ['all']) => {
       return Number.isNaN(n) ? s.trim() : n
     })
     .filter((v) => v !== '' && v !== undefined)
+}
+/** url 文件链接下载 */
+export function downloadByUrl(url, name = '') {
+  triggerDownload(url, name, { target: '_blank' })
+}
+/**
+* src 图片链接 导出
+* name: 图片导出名称
+* */
+export function downloadImage (src, name) {
+  const image = new Image()
+  image.onload = () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = image.width
+    canvas.height = image.height
+    const context = canvas.getContext('2d')
+    context.drawImage(image, 0, 0, image.width, image.height)
+    const url = canvas.toDataURL('image/png')
+    triggerDownload(url, name || 'image')
+  }
+  image.src = src
+}
+
+/**
+* file 文件 导出
+* name: 导出名称
+*/
+export function downloadFile (file, name) {
+  const blob = new Blob([file])
+  const url = URL.createObjectURL(blob)
+
+  triggerDownload(url, name)
+  setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+function triggerDownload(url, name = '', options = {}) {
+  const link = document.createElement('a')
+  link.href = url
+  link.download = name
+  link.style.display = 'none'
+  if (options.target) link.target = options.target
+  link.rel = 'noopener noreferrer'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }

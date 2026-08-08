@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+
 import { submitItem } from '@/api/index.js'
 
 const optionCache = new Map()
@@ -24,16 +24,16 @@ export const normalizeOptions = (data, request = {}) => {
   }))
 }
 
-export function useFieldOptions(attributesRef) {
+export function useFieldOptions(fieldRef) {
   const loading = ref(false)
   const list = ref([])
 
   const loadOptions = async () => {
-    const attributes = attributesRef.value || {}
-    const { request } = attributes
+    const field = fieldRef.value || {}
+    const { request } = field
 
-    if (attributes.list && attributes.list.length > 0) {
-      list.value = normalizeOptions(attributes.list, request || {})
+    if (field.options && field.options.length > 0) {
+      list.value = normalizeOptions(field.options, request || {})
       return list.value
     }
 
@@ -62,7 +62,7 @@ export function useFieldOptions(attributesRef) {
     }
   }
 
-  watch(attributesRef, loadOptions, { deep: true, immediate: true })
+  watch(fieldRef, loadOptions, { deep: true, immediate: true })
 
   return {
     loading,

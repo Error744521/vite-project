@@ -46,8 +46,8 @@ export default defineConfig(({ mode}) => {
         template: 'public/index.html',
         inject: {
           data: {
-            title: env.VITE_BASW_TITLE,
-            icon: env.VITE_BASW_ICON,
+            title: env.VITE_BASE_TITLE,
+            icon: env.VITE_BASE_ICON,
             env: env.NODE_ENV,
           }
         }
@@ -111,7 +111,7 @@ export default defineConfig(({ mode}) => {
       },
       proxy: {
         ...(!useMock ? { '/v1': {
-          target: env.VITE_BASW_API,
+          target: env.VITE_BASE_API,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/v1/, ''),
         } } : {}),

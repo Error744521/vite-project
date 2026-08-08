@@ -15,7 +15,7 @@ import {submitItem} from '@/api/index.js'
 
 const store = useFormStore()
 const props = defineProps({
-  screeData: {
+  screeTable: {
     type: Object, default: () => {
     }
   }
@@ -26,9 +26,9 @@ const orderDefault = ref([])
 const sortDefault = ref([])
 const handleSelect = (val) => {
   order_flag.value = val
-  if (props.screeData.select && props.screeData.select.url) {
+  if (props.screeTable.select && props.screeTable.select.url) {
     const param = {id: val}
-    submitItem(props.screeData.select.url, props.screeData.select.methods, param).then((res) => {
+    submitItem(props.screeTable.select.url, props.screeTable.select.methods, param).then((res) => {
       if (res.code == 200) {
         sortDefault.value = res.data
       }
@@ -46,12 +46,12 @@ watch(() => [store.searchRuleForm.order_flag, store.searchRuleForm.sort_val], (n
   }
 })
 onMounted(() => {
-  if (props.screeData.sorting && props.screeData.sorting.list) {
-    orderDefault.value = props.screeData.sorting.list
+  if (props.screeTable.sorting && props.screeTable.sorting.list) {
+    orderDefault.value = props.screeTable.sorting.list
   } else {
   }
-  if (props.screeData.select && props.screeData.select.list) {
-    sortDefault.value = props.screeData.select.list
+  if (props.screeTable.select && props.screeTable.select.list) {
+    sortDefault.value = props.screeTable.select.list
   }
 })
 </script>

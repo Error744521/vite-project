@@ -5,10 +5,10 @@
       <div class="card module_card">
         <div class="class-flex">
           <div class="class-flex-left">
-            <IndexTotal :data="state.totalData"></IndexTotal>
+            <IndexTotal :totalData="state.totalData"></IndexTotal>
           </div>
           <div class="class-flex-right">
-            <IndexTableOperation :operation="state.operation" @callback="handleCallback"></IndexTableOperation>
+            <IndexTableOperation :operationTable="state.operationTable" @callback="handleCallback"></IndexTableOperation>
           </div>
           <div class="class-flex-right">
             <IndexTableScreen :scree-data="state.screeData" @callback="handleCallback"></IndexTableScreen>
@@ -131,7 +131,7 @@ const state = reactive({
     request: { url: '', methods: 'post', param: { dataType: 3 } },
     pageUrl: '/exceptionData?type=3'
   },
-  operation: {
+  operationTable: {
     Template: { url: '' },
     Importing: { url: '/v1/companies/company_import', methods: 'post', param: { dataType: 3 } },
     Export: { url: '', methods: 'post', param: { dataType: 3 } },

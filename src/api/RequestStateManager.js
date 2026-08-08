@@ -29,35 +29,29 @@ export class RequestStateManager {
         this.loading = true
         this.error = null
 
-        const requestPromise = this.requestFn(...args)
-            .then((res) => {
+        const requestPromise = this.requestFn(...args).then((res) => {
                 if (!this.onlyLatest || currentId === this.requestId) {
                     this.data = res
                 }
                 return res
-            })
-            .catch((err) => {
+            }).catch((err) => {
                 if (!this.onlyLatest || currentId === this.requestId) {
                     this.error = err
                 }
                 throw err
-            })
-            .finally(() => {
+            }).finally(() => {
                 this.pendingMap.delete(cacheKey)
 
                 if (!this.onlyLatest || currentId === this.requestId) {
                     this.loading = false
                 }
             })
-
         this.pendingMap.set(cacheKey, requestPromise)
-
         return requestPromise
     }
 
     debounceRun(...args) {
         clearTimeout(this.timer)
-
         return new Promise((resolve, reject) => {
             this.timer = setTimeout(() => {
                 this.run(...args).then(resolve).catch(reject)

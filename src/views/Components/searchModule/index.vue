@@ -17,7 +17,7 @@
       <searchCriteria class="flexWidth" :items="criteriaList"></searchCriteria>
       <el-form-item label="" class="flexForm">
         <el-button type="primary" @click="onSubmit" :icon="Search">搜索</el-button>
-        <el-button @click="onRefresh" :icon="Refresh">重置</el-button>
+        <el-button type="warning" plain @click="onRefresh" :icon="Refresh">重置</el-button>
       </el-form-item>
     </div>
   </div>

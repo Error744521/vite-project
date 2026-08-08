@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { getStorage } from "@/utils/tools.js";
-import requester from "@/api/publiclist.js";
 
 const getData = (state, key) => {
   if (state[key] && state[key].length > 0) {

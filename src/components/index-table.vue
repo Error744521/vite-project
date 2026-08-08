@@ -1,8 +1,6 @@
 <template>
   <div class="pro-table-wrapper">
-    <el-table
-      ref="tableRef"
-      v-loading="props.loading"
+    <el-table ref="tableRef" v-loading="props.loading"
       :data="tableData"
       :show-header="props.params.showHeader"
       :border="props.params.border"
@@ -29,15 +27,9 @@
         </template>
       </el-table-column>
       <template v-for="column in columns" :key="column.prop">
-        <el-table-column
-          :prop="column.prop"
-          :label="column.label"
-          :width="column.width"
-          :min-width="column.minWidth"
-          :label-class-name="column.className"
-          :class-name="column.className"
-          :fixed="column.fixed"
-          :sortable="column.sortable"
+        <el-table-column :prop="column.prop" :label="column.label" :width="column.width" :min-width="column.minWidth"
+          :label-class-name="column.className" :class-name="column.className"
+          :fixed="column.fixed" :sortable="column.sortable"
           :align="column.align || 'left'"
           :header-align="column.headerAlign"
           :show-overflow-tooltip="column.showOverflowTooltip"
@@ -69,10 +61,8 @@
         </slot>
       </template>
     </el-table>
-    <index-pagination
-      v-if="props.params.pagination"
-      :page="props.meta.page"
-      :pageSize="props.meta.pageSize"
+    <index-pagination v-if="props.meta.pagination"
+      :page="props.meta.page" :pageSize="props.meta.pageSize"
       :total="props.meta.total"
       @update:page="props.meta.page = $event"
       @update:pageSize="props.meta.pageSize = $event"
@@ -92,12 +82,12 @@ const props = defineProps({
   tableData: {type: Array, default: () => []},
   columns: {type: Array, default: () => []},
   params: {
-    type: Object, default: () => {
-    }
+    type: Object,
+    default: () => {}
   },
   meta: {
-    type: Object, default: () => {
-    }
+    type: Object,
+    default: () => {}
   },
   rowKey: {type: [String, Function], default: 'id'},
   reserveSelection: {type: Boolean, default: false},

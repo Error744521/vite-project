@@ -1,23 +1,22 @@
 <template>
 <div class="index-content-page">
   <el-affix target=".index-content-page" :offset="0">
-    <page-header :type="1" :loading="loading" :list="state.menuArray" />
+    <page-header :type="1" :loading="loading" :list="state.menuArray" @callback="" />
   </el-affix>
-  <div class="module_page">
-    <search-form keys="B_networkSystem" v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset" />
-    <div class="card module_card">
-      <div class="class-flex">
-        <div class="class-flex-left">
-          <index-total :data="state.totalData" />
-        </div>
-        <div class="class-flex-right">
-          <index-table-operation :operation="state.operation" @callback="handleSubmit" />
-        </div>
-        <div class="class-flex-right">
-          <index-table-screen :screeData="state.screeData" @callback="handleSubmit" />
-        </div>
+  <search-form keys="B_networkSystem" v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset" />
+  <div class="card module_card">
+    <div class="class-flex">
+      <div class="class-flex-left">
+        <index-total :totalData="state.totalData" />
       </div>
-      <index-table class="class-table" v-loading="loading" :tableData="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleSubmit">
+      <div class="class-flex-right">
+        <index-table-operation :operationTable="state.operationTable" @callback="handleSubmit" />
+      </div>
+      <div class="class-flex-right">
+        <index-table-screen :screeTable="state.screeTable" @callback="handleSubmit" />
+      </div>
+    </div>
+    <index-table class="class-table" v-loading="loading" :tableData="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleSubmit">
       <template #flag="{ row }">
         <span v-if="row.flag === '1'">非交易网站</span>
         <span v-else>交易网站</span>
@@ -45,18 +44,20 @@
       <template #operation="{ row }">
         <el-button  type="primary" link >详情</el-button> <!-- @click="detailLook(row)" -->
         <el-popover trigger="hover" placement="top">
-          <el-button  type="primary" link size="small">转平台</el-button> <!-- @click="reverseItem(row.id)" -->
-          <el-button  type="primary" link size="small">异常</el-button> <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
-          <el-button  type="primary" link size="small">删除</el-button> <!-- @click="deleteItem(row.id)" -->
-          <el-button type="primary" link size="small"></el-button> <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
+          <el-button  type="primary" link >转平台</el-button> <!-- @click="reverseItem(row.id)" -->
+          <el-button  type="primary" link >异常</el-button> <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
+          <el-button  type="primary" link >删除</el-button> <!-- @click="deleteItem(row.id)" -->
+          <el-button type="primary" link ></el-button> <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
           <template #reference>
-            <div class="class-more-font-style">更多>></div>
+            <el-button  type="primary" link >更多>></el-button>
           </template>
         </el-popover>
       </template>
     </index-table >
-    </div>
   </div>
+<!--  <div class="module_page">
+
+  </div>-->
 </div>
 </template>
 
@@ -68,28 +69,65 @@ const tableData = ref([])
 const defaultSearchParams = { page: 1, pagesize: 15 }
 const state = reactive({
   menuArray: [
-    {label: '在网主体库', value: '1', show: true, url: '/v1/companies'},
-    {label: '登记主体库', value: '2', show: true, url: '/v1/companies'},
-    {label: '认领库', value: '3', show: true, url: '/v1/companies/claims'},
-    {label: '不能确认主体', value: '4', show: true, url: '/v1/takeouts'}
+    { label: '在网主体库', value: '1', show: true, url: '/v1/companies' },
+    { label: '登记主体库', value: '2', show: true, url: '/v1/companies' },
+    { label: '认领库', value: '3', show: true, url: '/v1/companies/claims' },
+    { label: '不能确认主体', value: '4', show: true, url: '/v1/takeouts' }
   ],
-  searchModel: {},
+  searchModel: { company_name: '342', credit_code: '123', label_name: 2,  inclusion_type: 1, targe_ids: [7], company_type_ids: [11,12] },
   searchParams: { ...defaultSearchParams },
-  searchGroups: [{
-    label: '',
-    fields: ['company_name', 'credit_code', 'scope_name', 'company_address', 'label_name', 'inclusion_mode', 'updateDate']
-  }, {
-    label: '筛选信息',
-    fields: ['industry_id', 'org_id', 'company_status', 'capital', 'company_type_ids', 'platform_id']
-  }, {
-    label: '风险信息',
-    fields: ['punish_flag', 'complaint_flag', 'abnormal_flag', 'credit_level', 'risk_level']
-  }],
-  information: { company_name: '342', credit_code: '123', platform_id: 176460, takeout_category_id: [1], flag: '', category_id: [1, 3], is_trade: '', monitor_frequency_flag: 1, start_time: '2025-12-26', date_range: ['2025-12-12', '2025-12-26'], behavior_id: [], label_id: '', link_address: '', file_path: '', image_path: '' },
+  searchGroups: [
+    {
+      label: '',
+      fields: ['company_name', 'credit_code', 'scope_name', 'company_address', 'label_name', 'inclusion_mode', 'updateDate']
+    },
+    {
+      label: '筛选信息',
+      fields: ['industry_id', 'org_id', 'company_status', 'capital', 'company_type_ids', 'platform_id']
+    },
+    {
+      label: '风险信息',
+      fields: ['punish_flag', 'complaint_flag', 'abnormal_flag', 'credit_level', 'risk_level']
+    }
+  ],
+  totalData: {
+    total: 0,
+    show: true,
+    goPage: { url: '/exceptionData?type=3', request: { url: '', methods: 'post', param: { dataType: 3 } } },
+  },
+  operationTable: {
+    Linking: { url: 'http://baidu.com' },
+    Template: { url: '/v1/companies/down_template', methods: 'post', param: { } },
+    Importing: { url: '/v1/companies/company_import', methods: 'post', param: { } },
+    Export: { url: '/v1/companies/export', methods: 'post', param: { dataType: 3 } },
+    Assignment: { url: '', methods: 'post', param: { dataType: 3 } },
+    Dispatch: { url: '', methods: 'post', param: { dataType: 3 } },
+    Delete: { url: '', methods: 'post', param: { dataType: 3 } },
+    Marking: { url: '', methods: 'post', param: { dataType: 3 } },
+    Unusual: { url: '', methods: 'post', param: { dataType: 3 } },
+    NewData: { url: '', methods: 'post', param: { dataType: 3 } },
+    Screenshot: { url: '', methods: 'post', param: { dataType: 3 } }
+  },
+  screeTable: {
+    sorting: { url: '', methods: 'post', list: [{ label: '默认', value: '' }, { label: '正序', value: 1 }, { label: '倒序', value: -1 }]},
+    select: { url: '', methods: 'post', list: [
+        { label: '默认', value: '' },
+        { label: '载体数', value: 1 },
+        { label: '处罚', value: 2 },
+        { label: '投诉', value: 3 },
+        { label: '风险', value: 4 },
+        { label: '信用', value: 5 }
+      ]
+    }
+  },
   loading: false,
-  meta: {},
-  params: {
+  meta: {
     pagination: true,
+    total: 0,
+    page: 1,
+    pagesize: 15
+  },
+  params: {
     border: true,
     stripe: true,
     fit: true,
@@ -102,35 +140,6 @@ const state = reactive({
     expand: false,
     operationWidth: 150
   },
-  totalData: {
-    total: 0,
-    request: { url: '', methods: 'post', param: { dataType: 3 } },
-    pageUrl: '/exceptionData?type=3'
-  },
-  operation: {
-    Template: { url: '' },
-    Importing: { url: '/v1/companies/company_import', methods: 'post', param: { dataType: 3 } },
-    Export: { url: '', methods: 'post', param: { dataType: 3 } },
-    Assignment: { url: '', methods: 'post', param: { dataType: 3 } },
-    Dispatch: { url: '', methods: 'post', param: { dataType: 3 } },
-    Delete: { url: '', methods: 'post', param: { dataType: 3 } },
-    Marking: { url: '', methods: 'post', param: { dataType: 3 } },
-    Unusual: { url: '', methods: 'post', param: { dataType: 3 } },
-    NewData: { url: '', methods: 'post', param: { dataType: 3 } },
-    Screenshot: { url: '', methods: 'post', param: { dataType: 3 } }
-  },
-  screeData: {
-    sorting: {url: '', methods: 'post', list: [{ label: '默认', value: '' }, { label: '正序', value: 1 }, { label: '倒序', value: -1 }]},
-    select: {url: '', methods: 'post', list: [
-        { label: '默认', value: '' },
-        { label: '载体数', value: 1 },
-        { label: '处罚', value: 2 },
-        { label: '投诉', value: 3 },
-        { label: '风险', value: 4 },
-        { label: '信用', value: 5 }
-      ]
-    }
-  }
 })
 
 const loading = ref(false)
@@ -191,14 +200,25 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.module_page {
-  display: block;
-  height: calc(100% - 60px);
-  overflow: auto;
+.index-content-page {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   position: relative;
   &::-webkit-scrollbar {
     display: none;
   }
+}
+.module_card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.class-table {
+  flex: 1;
+  min-height: 0;
 }
 .refresh-button {
   display: flex;

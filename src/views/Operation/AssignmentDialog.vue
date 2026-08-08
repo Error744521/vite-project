@@ -7,7 +7,7 @@
           <el-input v-model="formData.taskName" placeholder="请输入任务名称" />
         </el-form-item>
         <el-form-item label="任务描述" prop="taskDesc">
-          <el-textarea v-model="formData.taskDesc" placeholder="请输入任务描述" :rows="3" />
+          <el-input v-model="formData.taskDesc" type="textarea" placeholder="请输入任务描述" :rows="3" />
         </el-form-item>
         <el-form-item label="优先级" prop="priority">
           <el-select v-model="formData.priority" placeholder="请选择优先级">
@@ -32,7 +32,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="备注">
-          <el-textarea v-model="formData.remark" placeholder="请输入备注信息" :rows="2" />
+          <el-input v-model="formData.remark" type="textarea" placeholder="请输入备注信息" :rows="2" />
         </el-form-item>
       </el-form>
     </template>

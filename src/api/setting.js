@@ -1,18 +1,9 @@
-import request from '@/utils/request.js'
-import { ElMessage } from "element-plus";
-import { useSystemStore } from "@/store/system.js";
 import CryptoJS from 'crypto-js';
+import { submitItem } from '@/api/index.js'
+import { useSystemStore } from "@/store/system.js";
 
 export function setsystem (param) {
-  request({
-    url: `/v1/auth/login_system?system_id=${param}`,
-    method: 'post',
-    data: param
-  }).then(res => {
-    if (res.code !== 200) {
-      ElMessage(res.msg)
-    }
-  })
+  return submitItem('/v1/auth/login_system', 'post', { system_id: param })
 }
 
 export function login (param) {
@@ -25,29 +16,19 @@ export function login (param) {
       domain_name: param.domain_name,
     })
   }
-  const ruleform = {}
-  ruleform.login_type = param.login_type
-  ruleform.domain_name = param.domain_name
-  ruleform.mobile = encrypotion(param.mobile)
+  const ruleForm = { login_type: param.login_type, domain_name: param.domain_name }
+  ruleForm.mobile = encrypotion(param.mobile)
   if (param.login_type === 1) {
-    ruleform.code = encrypotion(param.code)
+    ruleForm.code = encrypotion(param.code)
   }
   if (param.login_type === 2) {
-    ruleform.password = encrypotion(param.password)
+    ruleForm.password = encrypotion(param.password)
   }
-  return request({
-    url: '/v1/auth/login',
-    method: 'post',
-    data: ruleform
-  })
+  return submitItem('/v1/auth/login', 'post', ruleForm)
 }
 
 export function outlogin (param) {
-  request({
-    url: '/v1/auth/logout',
-    method: 'post',
-    data: param
-  }).then(res => {
+  return submitItem('/v1/auth/logout', 'post', param).then(res => {
     if (res.code === 200) {
       const store = useSystemStore()
       store.clearInfo()
@@ -55,7 +36,6 @@ export function outlogin (param) {
     }
   })
 }
-
 
 function encrypotion (data) {
   let timestampInSeconds = Math.floor(new Date().getTime() / 1000);

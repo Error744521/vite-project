@@ -1,15 +1,13 @@
 <template>
-<header class="page_header">
-  <el-menu :default-active="handletype" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+<header v-if="list.length > 0" class="page_header">
+  <el-menu :default-active="handleType" class="el-menu-demo" mode="horizontal" @select="handleSelect">
     <el-menu-item v-for="(item, index) in list" v-show="item.show" :key="index" :index="item.value">
-      <span class="style-position">{{item.label}}</span>
+      <span class="style-position">{{ item.label }}</span>
     </el-menu-item>
   </el-menu>
 </header>
 </template>
 <script setup>
-import { useRouter } from "vue-router";
-const router = useRouter()
 const emit = defineEmits(['callback'])
 const props = defineProps({
   loading: {
@@ -25,17 +23,23 @@ const props = defineProps({
     default: () => []
   }
 })
-const handletype = ref('')
+const handleType = ref('')
 
-const handleSelect = (val) => {
-  handletype.value = val
+const setDefaultActive = () => {
+  if (!Array.isArray(props.list) || props.list.length === 0) return
+  handleType.value = props.type || props.list[0].value
 }
 
-onMounted(() => {
-  if (Array.isArray(props.list)) {
-    handletype.value = props.list[0].value
-  }
-})
+const handleSelect = (val) => {
+  if (props.loading) return
+  handleType.value = val
+  const item = props.list.find((item) => item.value === val)
+  emit('callback', item || val)
+}
+
+onMounted(setDefaultActive)
+
+watch(() => [props.type, props.list], setDefaultActive, { deep: true })
 </script>
 
 <style scoped lang="scss">
