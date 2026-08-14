@@ -2,20 +2,24 @@ import router from './index.js'
 import { useSystemStore } from '@/store/system.js'
 
 router.beforeEach((to, from, next) => {
-  // 设置页面标题
-  if (['login', 'loginRole'].includes(to.name)) {
-    next()
-  } else {
-    const store = useSystemStore()
-    const token = store.getToken || ''
-    if (token) {
-      try {
-        next()
-      } catch (e) {
-        next('/login')
-      }
-    } else {
-      next({ path: '/login', query: { redirect: to.fullPath } })
-    }
+  const store = useSystemStore()
+  const token = store.getToken || ''
+  const requireAuth = to.matched.some((record) => record.meta.requireAuth)
+
+  if (to.path === '/login' && token) {
+    next({ path: '/index' })
+    return
   }
+
+  if (!requireAuth) {
+    next()
+    return
+  }
+
+  if (!token) {
+    next({ path: '/login', query: { redirect: to.fullPath } })
+    return
+  }
+
+  next()
 })

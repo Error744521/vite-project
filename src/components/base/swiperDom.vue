@@ -6,8 +6,8 @@
       </div>
     </div>
     <div v-if="pagination" class="swiper-pagination"></div>
-    <button v-if="navigation" :class="['swiper-button-prev', navClass]" aria-label="上一页"></button>
-    <button v-if="navigation" :class="['swiper-button-next', navClass]" aria-label="下一页"></button>
+    <button ref="prevElRef" v-if="navigation" :class="['swiper-button-prev', navClass]" aria-label="上一页"></button>
+    <button ref="nextElRef" v-if="navigation" :class="['swiper-button-next', navClass]" aria-label="下一页"></button>
     <div v-if="scrollbar" class="swiper-scrollbar"></div>
   </div>
 </template>
@@ -37,6 +37,15 @@ const props = defineProps({
   spaceBetween: {
     type: Number,
     default: 0
+  },
+  direction: {
+    type: String,
+    default: 'horizontal',
+    validator: (val) => ['horizontal', 'vertical'].includes(val)
+  },
+  className: {
+    type: [String, Array, Object],
+    default: 'swiper swiper-container'
   },
   loop: {
     type: Boolean,
@@ -80,6 +89,8 @@ const emit = defineEmits([
 ])
 
 const swiperRef = ref(null)
+const prevElRef = ref(null)
+const nextElRef = ref(null)
 let swiperInstance = null
 
 const swiperModules = computed(() => {
@@ -101,6 +112,7 @@ const swiperOptions = computed(() => ({
   modules: swiperModules.value,
   slidesPerView: props.slidesPerView,
   spaceBetween: props.spaceBetween,
+  direction: props.direction,
   loop: props.loop,
   autoplay: props.autoplay ? {
     delay: props.autoplayDelay,
@@ -108,8 +120,8 @@ const swiperOptions = computed(() => ({
   } : false,
   pagination: props.pagination ? { clickable: true } : false,
   navigation: props.navigation ? {
-    nextEl: '.swiper-button-next',
-    prevEl: '.swiper-button-prev'
+    nextEl: nextElRef.value,
+    prevEl: prevElRef.value
   } : false,
   scrollbar: props.scrollbar ? { draggable: true } : false,
   effect: props.effect
@@ -117,7 +129,8 @@ const swiperOptions = computed(() => ({
 
 const initSwiper = () => {
   if (swiperInstance) {
-    swiperInstance.destroy()
+    swiperInstance.destroy(true, true)
+    swiperInstance = null
   }
 
   nextTick(() => {
@@ -148,6 +161,21 @@ watch(() => props.slides, () => {
   })
 }, { deep: true })
 
+watch(() => [
+  props.slidesPerView,
+  props.spaceBetween,
+  props.direction,
+  props.loop,
+  props.autoplay,
+  props.autoplayDelay,
+  props.pagination,
+  props.navigation,
+  props.scrollbar,
+  props.effect
+], () => {
+  initSwiper()
+})
+
 onMounted(() => {
   initSwiper()
 })
@@ -169,14 +197,15 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
+.swiper,
 .swiper-container {
   width: 100%;
   height: 100%;
+}
 
-  &-vertical {
-    .swiper-wrapper {
-      flex-direction: column;
-    }
+.swiper-vertical {
+  .swiper-wrapper {
+    flex-direction: column;
   }
 }
 </style>

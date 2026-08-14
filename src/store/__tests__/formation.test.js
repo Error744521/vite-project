@@ -58,4 +58,48 @@ describe('useFormStore', () => {
 
     expect(store.searchCondition).toEqual([])
   })
+
+  it('按页面 key 缓存和清理页面查询状态', () => {
+    const store = useFormStore()
+    const pageKey = 'B_networkSystem/registerBody'
+    const cache = {
+      searchParams: { company_name: '示例公司' },
+      sortingParams: { order_flag: 1 },
+      meta: { page: 2, pageSize: 15 }
+    }
+
+    store.setPageQueryCache(pageKey, cache)
+
+    expect(store.getPageQueryCache(pageKey)).toEqual(cache)
+
+    store.clearPageQueryCache(pageKey)
+
+    expect(store.getPageQueryCache(pageKey)).toBeNull()
+  })
+
+  it('按页面 key 标记和清理导航意图', () => {
+    const store = useFormStore()
+    const pageKey = 'B_networkSystem/registerBody'
+
+    store.setNavigationIntent(pageKey, 'detailUpdated')
+
+    expect(store.getNavigationIntent(pageKey)).toBe('detailUpdated')
+
+    store.clearNavigationIntent(pageKey)
+
+    expect(store.getNavigationIntent(pageKey)).toBe('')
+  })
+
+  it('清理页面缓存时同步清理导航意图', () => {
+    const store = useFormStore()
+    const pageKey = 'B_networkSystem/registerBody'
+
+    store.setPageQueryCache(pageKey, { searchParams: { keyword: 'test' } })
+    store.setNavigationIntent(pageKey, 'menu')
+
+    store.clearPageCache(pageKey)
+
+    expect(store.getPageQueryCache(pageKey)).toBeNull()
+    expect(store.getNavigationIntent(pageKey)).toBe('')
+  })
 })

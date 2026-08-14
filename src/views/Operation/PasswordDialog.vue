@@ -17,7 +17,7 @@
 import { ref, reactive, watch } from 'vue'
 import { submitItem } from '@/api/index.js'
 import { ElMessage } from "element-plus";
-import DialogDom from '@/components/common/DialogDom.vue'
+import DialogDom from '@/components/base/dialogDom.vue'
 
 const props = defineProps({
   visible: {

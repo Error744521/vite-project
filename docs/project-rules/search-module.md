@@ -50,7 +50,7 @@ src/views/ComponentsPages/B_networkSystem/public.js
 ```js
 const state = reactive({
   searchModel: {},
-  searchParams: { page: 1, pagesize: 15 },
+  searchParams: { page: 1, pageSize: 15 },
   searchGroups: [
     { label: '', fields: ['company_name', 'credit_code'] },
     { label: '筛选信息', fields: ['industry_id', 'org_id'] }

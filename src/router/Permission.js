@@ -34,12 +34,14 @@ const getSubRouter = () => {
   const subRouter = Object.keys(requireComponent).map(function (key) {
     let str = key.replace(/\.vue$/, '')
     const pathObj = convertPathToCamelCase(str)
+    if (!pathObj?.path) return null
     return {
       path: pathObj.path,
       name: pathObj.name,
-      component: requireComponent[key]
+      component: requireComponent[key],
+      meta: pathObj.meta
     }
-  })
+  }).filter(Boolean)
   return subRouter
 }
 
@@ -53,9 +55,10 @@ const convertPathToCamelCase = (path) => {
     return parts.length === 1 ? parts : ''
   }
   const lastName = parts.pop()
+  let fastPart = ''
   let subName = { path: `/${lastName}`, name: lastName }
   if (['detail', 'edit', 'list', 'index'].includes(lastName) && parts.length >= 2) {
-    const fastPart = parts.pop()
+    fastPart = parts.pop()
     const lastPart = lastName.charAt(0).toUpperCase() + lastName.slice(1)
     if (lastName === 'index') {
       subName = { path: `/${fastPart}${lastPart}`, name: `${fastPart}${lastPart}` }
@@ -63,7 +66,30 @@ const convertPathToCamelCase = (path) => {
       subName = { path: `/${fastPart}${lastPart}/:id?/:type?`, name: `${fastPart}${lastPart}` }
     }
   }
+  subName.meta = createRouteMeta({ routeName: subName.name, lastName, fastPart })
   return subName
+}
+
+const createRouteMeta = ({ routeName, lastName, fastPart }) => {
+  const meta = { requireAuth: true }
+  if (['index', 'list'].includes(lastName)) {
+    return {
+      ...meta,
+      keepAlive: true,
+      pageKey: routeName
+    }
+  }
+  if (['detail', 'edit'].includes(lastName)) {
+    return {
+      ...meta,
+      keepAlive: false,
+      parentPageKey: fastPart ? `${fastPart}Index` : ''
+    }
+  }
+  return {
+    ...meta,
+    keepAlive: false
+  }
 }
 
 export { getSubRouter }

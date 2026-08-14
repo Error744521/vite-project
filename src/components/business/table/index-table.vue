@@ -64,18 +64,14 @@
     <index-pagination v-if="props.meta.pagination"
       :page="props.meta.page" :pageSize="props.meta.pageSize"
       :total="props.meta.total"
-      @update:page="props.meta.page = $event"
-      @update:pageSize="props.meta.pageSize = $event"
-      @size-change="$emit('callback', 'size', $event)"
-      @current-change="$emit('callback', 'page', $event)"
+      @size-change="handlePageSizeChange"
+      @current-change="handlePageChange"
     />
   </div>
 </template>
 
 <script setup>
-import {useFormStore} from '@/store/formation.js'
 import { formatDate as formatDateUtil } from '@/utils/tools.js'
-const store = useFormStore()
 
 const props = defineProps({
   loading: {type: Boolean, default: false},
@@ -93,7 +89,7 @@ const props = defineProps({
   reserveSelection: {type: Boolean, default: false},
   selectable: {type: Function, default: null}
 })
-const emit = defineEmits(['callback', 'sort-change', 'row-click', 'row-dblclick', 'cell-click', 'expand-change', 'link-click'])
+const emit = defineEmits(['callback', 'selection-change', 'sort-change', 'row-click', 'row-dblclick', 'cell-click', 'expand-change', 'link-click'])
 const params = ref({
   rowClassName: 'rowClassName',
   cellClassName: 'cellClassName', //单元格的 className 的回调方法，也可以使用字符串为所有单元格设置一个固定的 className。
@@ -102,12 +98,15 @@ const params = ref({
 const tableRef = ref(null)
 const getIndexMethod = (index) => { return (props.meta.page - 1) * props.meta.pageSize + index + 1 }
 const handleSelectionChange = (selection) => {
-  const arr = selection.map((item) => item.id)
-  store.setSelectionMultiple(arr)
+  emit('selection-change', selection)
+  emit('callback', 'selection', selection)
 }
-onMounted(() => {
-  store.clearRuleForm()
-})
+const handlePageChange = (page) => {
+  emit('callback', 'page', page)
+}
+const handlePageSizeChange = (size) => {
+  emit('callback', 'size', size)
+}
 const handleLinkClick = (row, column) => {
   if (!row[column.prop]) return false
   window.open(row[column.prop])

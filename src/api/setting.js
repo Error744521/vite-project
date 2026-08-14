@@ -7,15 +7,6 @@ export function setsystem (param) {
 }
 
 export function login (param) {
-  if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'mock') {
-    console.log('[login] 加密前原文 ▶', {
-      login_type: param.login_type,
-      mobile: param.mobile,
-      code: param.code ?? '—',
-      password: param.password ?? '—',
-      domain_name: param.domain_name,
-    })
-  }
   const ruleForm = { login_type: param.login_type, domain_name: param.domain_name }
   ruleForm.mobile = encrypotion(param.mobile)
   if (param.login_type === 1) {

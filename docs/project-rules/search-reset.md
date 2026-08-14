@@ -24,7 +24,7 @@ state.searchParams
 默认分页参数：
 
 ```js
-{ page: 1, pagesize: 15 }
+{ page: 1, pageSize: 15 }
 ```
 
 如果页面使用其它分页字段，按页面接口字段同步重置，例如：
@@ -38,7 +38,7 @@ state.searchParams
 ```js
 const defaultSearchParams = {
   page: 1,
-  pagesize: 15
+  pageSize: 15
 }
 
 const getList = (param = state.searchParams, replace = false) => {
@@ -67,7 +67,7 @@ const handleCallback = (key, val) => {
     getList({ page: val })
   }
   if (key === 'size') {
-    getList({ page: 1, pagesize: val })
+    getList({ page: 1, pageSize: val })
   }
 }
 ```

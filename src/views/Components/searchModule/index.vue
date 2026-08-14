@@ -23,7 +23,6 @@
   </div>
 </template>
 <script setup>
-import { ref, watch } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
 import components from './index.js'
 import searchCriteria from './publicModules/searchCriteria.vue'
@@ -52,7 +51,7 @@ const optionsMap = ref({})
 const criteriaList = ref([])
 
 const onSubmit = () => {
-  const params = { ...buildSearchParams(formModel.value, fields.value), page: 1, pagesize: 15 }
+  const params = { ...buildSearchParams(formModel.value, fields.value), page: 1, pageSize: 15 }
   emit('update:modelValue', { ...formModel.value })
   emit('search', params)
 }
@@ -60,7 +59,7 @@ const onSubmit = () => {
 const onRefresh = () => {
   formModel.value = createInitialModel(fields.value)
   criteriaList.value = []
-  const params = { page: 1, pagesize: 15 }
+  const params = { page: 1, pageSize: 15 }
   emit('update:modelValue', { ...formModel.value })
   emit('reset', params)
 }

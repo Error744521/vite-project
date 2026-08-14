@@ -14,17 +14,17 @@
           content-class-name="my-content"
         >
           <template #label>
-            <slot :name="`label-${item.prop}`" :row="row">{{ item.label }}</slot>
+            <slot :name="`label-${item.prop}`" :row="row" :item="item">{{ item.label }}</slot>
           </template>
           <template #default>
-            <slot :name="item.prop" :row="row">
-              <div
+            <slot :name="item.prop" :row="row" :item="item" :value="getValue(item, row)">
+              <span
                 class="descriptions-value"
-                v-if="item.html"
-                v-html="getValue(item, row)"
+                :class="{ 'is-clickable': item.clickable }"
                 @click="handleItemClick(item)"
-              ></div>
-              <span v-else class="descriptions-value">{{ getValue(item, row) }}</span>
+              >
+                {{ getValue(item, row) }}
+              </span>
             </slot>
           </template>
         </el-descriptions-item>
@@ -44,18 +44,21 @@ const props = defineProps({
   border: {type: Boolean, default: true},
   colon: {type: Boolean, default: true}
 })
-const emit = defineEmits(['edit-password'])
+const emit = defineEmits(['item-click'])
 const getValue = (item, row) => {
   if (item.formatter && typeof item.formatter === 'function') {
     return item.formatter(row)
   }
   const value = row[item.prop]
-  return value || value === 0 ? value : '--'
+  return value === '' || value === null || value === undefined ? '--' : value
 }
 const handleItemClick = (item) => {
-  if (item.prop === 'edit_password') {
-    emit('edit-password')
-  }
+  if (!item.clickable) return
+  emit('item-click', {
+    item,
+    row: props.row,
+    value: getValue(item, props.row)
+  })
 }
 </script>
 
@@ -82,6 +85,11 @@ const handleItemClick = (item) => {
     .descriptions-value {
       color: var(--el-text-color-primary);
       display: inline-block;
+
+      &.is-clickable {
+        color: var(--el-color-primary);
+        cursor: pointer;
+      }
     }
   }
   &.descriptions-border {

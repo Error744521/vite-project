@@ -1,14 +1,26 @@
 <template>
-  <el-dialog :title="title" v-model="dialogVisible" :width="width" :top="top" :modal="modal" :close-on-click-modal="closeOnClickModal"
-    :close-on-press-escape="closeOnPressEscape" :show-close="showClose" :before-close="handleBeforeClose" class="custom-dialog">
+  <el-dialog
+    v-model="dialogVisible"
+    :title="title"
+    :width="width"
+    :top="top"
+    :modal="modal"
+    :close-on-click-modal="closeOnClickModal"
+    :close-on-press-escape="closeOnPressEscape"
+    :show-close="showClose"
+    :before-close="handleBeforeClose"
+    class="custom-dialog"
+    @open="emit('open')"
+    @close="emit('close')"
+  >
     <div class="dialog-body">
       <slot name="content"></slot>
     </div>
     <template #footer>
       <slot name="footer">
         <div class="dialog-footer" v-if="showFooter">
-          <el-button @click="handleCancel">{{ cancelText }}</el-button>
-          <el-button type="primary" @click="handleConfirm">{{ confirmText }}</el-button>
+          <el-button :disabled="loading" @click="handleCancel">{{ cancelText }}</el-button>
+          <el-button type="primary" :loading="loading" :disabled="loading" @click="handleConfirm">{{ confirmText }}</el-button>
         </div>
       </slot>
     </template>
@@ -16,6 +28,8 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   title: {
     type: String,
@@ -67,37 +81,34 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:visible', 'close', 'resetForm', 'onSubmit', 'open'])
+const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'open', 'close'])
 
-const dialogVisible = ref(props.visible)
-
-watch(() => props.visible, (newVal) => {
-  dialogVisible.value = newVal
-  if (newVal) {
-    emit('open')
+const dialogVisible = computed({
+  get: () => props.visible,
+  set: (value) => {
+    emit('update:visible', value)
   }
 })
 
-watch(dialogVisible, (newVal) => {
-  emit('update:visible', newVal)
-})
-
 const handleBeforeClose = (done) => {
+  if (props.loading) return
   done()
 }
 
 const handleCancel = () => {
-  dialogVisible.value = false
-  emit('resetForm')
+  if (props.loading) return
+  emit('cancel')
+  emit('update:visible', false)
 }
 
 const handleConfirm = () => {
+  if (props.loading) return
   emit('confirm')
 }
 </script>
 
 <style scoped lang="scss">
-.custom-dialog {
+:deep(.custom-dialog) {
   .el-dialog__header {
     padding: 16px 20px;
     border-bottom: 1px solid var(--el-border-color);

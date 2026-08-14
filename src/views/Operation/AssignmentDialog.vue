@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
-import dialogDom from '@/components/common/dialogDom.vue'
+import dialogDom from '@/components/base/dialogDom.vue'
 
 const props = defineProps({
   visible: { type: Boolean, default: true },

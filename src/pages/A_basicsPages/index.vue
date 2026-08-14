@@ -1,12 +1,12 @@
 <template>
   <div class="el-page-class">
-    <el-header><MianHeader @changeDomH="changeDomH"></MianHeader></el-header>
+    <el-header><MainHeader @changeDomH="changeDomH"></MainHeader></el-header>
     <el-container>
       <el-aside :class="[showHeight ? 'domeHeight' : '']">
         <MainMenu></MainMenu>
       </el-aside>
       <el-main :class="[showHeight ? 'domeHeight' : '']">
-        <MainTabs @reload="reload"></MainTabs>
+        <MainTabs @page-action="runPageAction"></MainTabs>
         <div class="main-content">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <keep-alive>
@@ -36,7 +36,23 @@ const reload = () => {
     isRouterAlive.value = true
   })
 }
+const pageActions = shallowRef({})
+const registerPageActions = (actions = {}) => {
+  pageActions.value = actions
+}
+const runPageAction = (name) => {
+  const action = pageActions.value?.[name]
+  if (typeof action === 'function') {
+    action()
+    return
+  }
+  if (name === 'reload') {
+    reload()
+  }
+}
 provide('reload', reload)
+provide('registerPageActions', registerPageActions)
+provide('runPageAction', runPageAction)
 onMounted(() => {
 })
 </script>
@@ -69,10 +85,13 @@ onMounted(() => {
   padding: 10px 20px 20px 0;
   position: relative;
   .main-content {
-    height: calc(100% - 40px);
+    height: calc(100% - 60px);
+    padding: 10px;
     overflow: hidden;
     border-radius: 8px;
     transition: height 0.5s;
+    background-color: $white-light;
+    box-shadow: inset 0 0 25px $white-dark;
   }
   .main-content::-webkit-scrollbar {
     display: none;

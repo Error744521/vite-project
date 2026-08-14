@@ -43,7 +43,6 @@ export const checkCode = createRegexValidator(REG.creditCode, '请输入正确�
 
 /** 经营许可证 */
 export const checkLicenseCode = createRegexValidator(REG.licenseCode, '请输入正确的经营许可证')
-export { checkLicenseCode as checklicenseCode }
 
 /** URL */
 export const checkUrl = createRegexValidator(REG.url, '请输入正确的URL')

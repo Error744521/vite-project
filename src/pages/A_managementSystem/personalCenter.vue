@@ -8,7 +8,7 @@
               <div class="HeaderContent_img">
                 <img :src="userInfo.avatar" alt="" />
               </div>
-              <descriptionsDom :list="descriptionslist" :row="userInfo" :column="3" :border="false" :title="userInfo.name" @edit-password="editPassword" />
+              <descriptionsDom :list="descriptionslist" :row="userInfo" :column="3" :border="false" :title="userInfo.name" @item-click="handleDescriptionClick" />
             </div>
           </div>
         </div>
@@ -38,8 +38,8 @@ import { ElMessage } from 'element-plus'
 import { useSystemStore } from '@/store/system.js'
 import { submitItem } from '../../api/index'
 import { subString } from '@/utils/tools.js'
-import descriptionsDom from '@/components/common/descriptionsDom.vue'
-import IndexTable from '@/components/index-table.vue'
+import descriptionsDom from '@/components/base/descriptionsDom.vue'
+import IndexTable from '@/components/business/table/index-table.vue'
 import PasswordDialog from "@views/Operation/PasswordDialog.vue";
 
 
@@ -60,9 +60,7 @@ const descriptionslist = ref([
     if (row.county?.name) parts.push(row.county.name)
     return parts.join(' ') || '--'
   }},
-  { label: '修改密码', prop: 'edit_password', html: true, formatter: () => {
-    return '<span style="color: #409eff;cursor: pointer">修改</span>'
-  }}
+  { label: '修改密码', prop: 'edit_password', clickable: true, formatter: () => '修改' }
 ])
 
 const columns1 = ref([
@@ -176,6 +174,11 @@ const handleSelect = (key) => {
 }
 
 const dialogPasswordVisible = ref(false)
+const handleDescriptionClick = ({ item }) => {
+  if (item.prop === 'edit_password') {
+    editPassword()
+  }
+}
 const editPassword = () => {
   dialogPasswordVisible.value = true
 }

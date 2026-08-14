@@ -18,7 +18,7 @@ export async function submitItem (url, type, param = {}, options = {}) {
     method,
     params: method === 'get' ? data : undefined,
     data: method === 'get' ? undefined : data
-  })
+  }).catch((error) => normalizeRequestError(error))
   const result = handleBusinessCode(response, { url, options })
   if (isSuccessCode(result?.code)) {
     requestCache.set(cacheKey, result)
@@ -40,6 +40,7 @@ const CODE_STATE = {
   403: { message: '没权限', level: 90, route: '/error/403' },
   404: { message: '地址不存在', level: 60, route: '/error/404' },
   405: { message: '请求方法不支持', level: 40 },
+  408: { message: '请求超时', level: 40 },
   422: { message: '请求参数错误', level: 40 },
   429: { message: '请求太频繁', level: 40 },
   500: { message: '服务器内部错误（代码异常/数据库崩）', level: 80, route: '/500' },
@@ -125,6 +126,19 @@ function getStatusLevel(code) {
 
 function isSuccessCode(code) {
   return CODE_STATE[Number(code)]?.success === true
+}
+
+function normalizeRequestError(error = {}) {
+  const responseData = error.response?.data || {}
+  const status = error.response?.status || error.status
+  const timeout = error.code === 'ECONNABORTED'
+  const code = Number(responseData.code || status || (timeout ? 408 : 500))
+  return {
+    ...responseData,
+    code,
+    msg: responseData.msg || responseData.message || error.message || CODE_STATE[code]?.message || '请求失败',
+    error
+  }
 }
 
 // 生成缓存键

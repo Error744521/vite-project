@@ -69,6 +69,35 @@ import { getStorage, setStorage, removeStorage } from '@/utils/tools.js'
 
 3. 退出登录或 401 时，必须同步清理 store 和 storage 中的登录态数据。
 
+## 页面导航意图
+
+页面缓存、页面刷新和页面恢复不直接依赖 `from/to` 判断。
+
+统一使用 `pageKey + navigationIntent` 标记导航意图，由页面自己决定重置、恢复或刷新。
+
+支持的意图：
+
+```js
+menu           // 从菜单进入，清空条件、分页、排序、缓存，并重新请求
+detailUpdated  // 详情页修改数据后返回，保留条件并重新请求
+resetRefresh   // 主动恢复初始状态，并重新请求
+refresh        // 保留当前条件，只重新请求
+back           // 返回页面，保留条件
+replace        // 替换进入页面，按页面规则处理
+```
+
+Store 中提供明确方法：
+
+```js
+setNavigationIntent(pageKey, intent)
+getNavigationIntent(pageKey)
+clearNavigationIntent(pageKey)
+```
+
+新页面和新逻辑必须使用 `navigationIntent`。
+
+旧刷新状态已废弃，禁止继续使用 `pageRefreshState`、`getPageRefreshState`、`getPageNeedRefresh`、`setPageRefreshState`、`setPageNeedRefresh`、`clearPageRefreshState`。
+
 ## 修改规则
 
 1. 修改 store 字段时，需要检查所有调用方。

@@ -7,7 +7,7 @@
       </div>
       <div class="index-header-right">
         <div :class="[item.className]" v-for="item in tabBarlist" :key="item.type">
-          <p @click="tabBar(item.url)" v-if="item.show" >
+          <p @click="tabBar(item)" v-if="item.show" >
             <span v-if="item.text">{{item.text}}</span>
             <img v-if="item.img" :src="item.img" alt="">
             <i v-if="item.icon" :class="['iconfont', item.icon]"></i>
@@ -23,15 +23,15 @@
         </el-dropdown>
       </div>
     </div>
-    <div class="indec-header-subcentent">
+    <div class="index-header-subcentent">
       <ul class="index-header-tab"  :style="syslist.length >= 9 ? 'justify-content:space-between' : 'justify-content:left'">
-        <li class="item-tab-select" :class="[item.id === state.selectindex ? 'active' : '']" @click="tabMenu(item, true)" v-for="(item, index) in syslist" :key="index"><p>{{item.name}}</p></li>
+        <li class="item-tab-select" :class="[item.id === state.selectindex ? 'active' : '']" @click="tabMenu(item, true)" v-for="item in syslist" :key="item.id || item.url"><p>{{item.name}}</p></li>
       </ul>
-      <div class="index-header-chiltab" ref="modalWrapper" v-if="syslist.length >= 9">
+      <div class="index-header-chiltab" ref="modalWrapper" v-if="syslistchild.length > 0">
         <p class="chiltab_icon" @click="sysExpand"><el-icon><Expand /></el-icon></p>
         <div class="chiltab_select" :class="[state.sysExpand ? 'RightShow' : 'RightHide']">
           <ul class="chiltab_select_ul">
-            <li :class="[item.id === state.selectindex ? 'active' : '']" @click="tabMenu(item, true)" v-for="(item, index) in syslistchild" :key="index"><p>{{item.name}}</p></li>
+            <li :class="[item.id === state.selectindex ? 'active' : '']" @click="tabMenu(item, true)" v-for="item in syslistchild" :key="item.id || item.url"><p>{{item.name}}</p></li>
           </ul>
         </div>
       </div>
@@ -43,11 +43,10 @@
 <script setup>
 import { useSystemStore } from "@/store/system.js";
 import { submitItem } from "@/api/index.js";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { isUrl } from "@/utils/tools.js"
 import PasswordDialog from "@views/Operation/PasswordDialog.vue";
 
-const route = useRoute()
 const router = useRouter()
 const store = useSystemStore()
 const state = reactive({
@@ -63,28 +62,29 @@ const state = reactive({
 const syslist = ref([])
 const syslistchild = ref([])
 const emit = defineEmits(['changeDomH'])
-const getSyslist = (param) => {
+const getSyslist = (selectedSystemId) => {
   syslist.value = []
   syslistchild.value = []
   submitItem('/v1/users/org_systems', 'post', {}).then(res => {
     if (res.code === 200) {
-      if (res.data && res.data.length <= 1) {
+      const list = Array.isArray(res.data) ? res.data : []
+      if (list.length <= 1) {
         emit('changeDomH', 80)
       } else {
         emit('changeDomH', 120)
       }
-      res.data.forEach((item, index) => {
-        if (index <= 9) {
+      list.forEach((item, index) => {
+        if (index < 9) {
           syslist.value.push(item)
         } else {
           syslistchild.value.push(item)
         }
-        if (item.id === param) {
+        if (item.id === selectedSystemId) {
           tabMenu(item, false)
         }
       })
-      // 如果系统列表为空，使用默认系统
-      if (res.data.length === 0) {
+
+      if (list.length === 0) {
         const defaultSystem = { id: 1, name: '慧眼监管系统', url: '/module' }
         tabMenu(defaultSystem, true)
       }
@@ -92,6 +92,7 @@ const getSyslist = (param) => {
   })
 }
 const tabMenu = (param, type) => {
+  if (!param) return
   state.sysExpand = false
   state.selectindex = param.id
   if (isUrl(param.url)) {
@@ -106,22 +107,27 @@ const tabMenu = (param, type) => {
   }
 }
 
-const tabBarlist = ref([
+const tabBarlist = computed(() => [
   { type: 1, url: '/queryTool', show: true, className: 'index-header-line', text: `常用工具` },
   { type: 2, url: '', show: true, className: 'index-header-line', icon: `icon-air` },
   { type: 3, url: '/messageCenter', show: true, className: 'index-header-line', icon: `iconshejiao-youxiang` },
   { type: 4, url: '', show: true, className: 'index-header-title', img: state.userInfo.avatar },
   { type: 5, url: '', show: true, className: 'index-header-title', text: state.userInfo.name },
 ])
-const tabBar = (param) => {
-
+const tabBar = (item) => {
+  if (!item?.url) return
+  if (isUrl(item.url)) {
+    window.open(item.url)
+    return
+  }
+  router.push({ path: item.url })
 }
 const commandList = ref([
   { type: 1, url: '/personalCenter', show: true, name: '个人中心', icon: 'User' },
   { type: 2, url: '/seedSystem', show: true, name: '切换系统', icon: 'TurnOff' },
   { type: 3, url: '/queryTool', show: true, name: '常用工具', icon: 'Notification' },
-  { type: 4, url: '', show: true, name: '修改秘密', icon: 'Unlock' },
-  { type: 5, url: '', show: true, name: '退出登陆', icon: 'SwitchButton' },
+  { type: 4, url: '', show: true, name: '修改密码', icon: 'Unlock' },
+  { type: 5, url: '', show: true, name: '退出登录', icon: 'SwitchButton' },
 ])
 const dialogPasswordVisible = ref(false)
 const handleCommand = (param) => {
@@ -132,14 +138,16 @@ const handleCommand = (param) => {
     router.push({ path: '/login' })
   } else {
     const data = commandList.value.find(item =>  item.type === param)
-    router.push({ path: data.url })
+    if (data?.url) {
+      router.push({ path: data.url })
+    }
   }
  }
 const sysExpand = () => {
-  state.sysExpand = state.sysExpand === true ? false : true
+  state.sysExpand = !state.sysExpand
 }
 const modalWrapper = ref(null)
-const handleClickOutside = () => {
+const handleClickOutside = (event) => {
   if (modalWrapper.value && !modalWrapper.value.contains(event.target)) {
     state.sysExpand = false
   }
@@ -161,8 +169,9 @@ onUnmounted(() => {
   background-size: 100% 100%;
   display: block;
   padding: 0 30px;
-  width: 1860px;
-  min-width: 1640px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   position: relative;
   min-height: 70px;
   height: 135px;
@@ -263,7 +272,7 @@ onUnmounted(() => {
     }
   }
 }
-.indec-header-subcentent {
+.index-header-subcentent {
   position: relative;
   display: flex;
   flex-wrap: nowrap;

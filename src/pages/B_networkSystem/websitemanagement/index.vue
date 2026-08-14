@@ -11,7 +11,7 @@
             <IndexTableOperation :operationTable="state.operationTable" @callback="handleCallback"></IndexTableOperation>
           </div>
           <div class="class-flex-right">
-            <IndexTableScreen :screeData="state.screeData" @callback="handleCallback"></IndexTableScreen>
+            <IndexTableScreen v-model="state.sortingParams" :screenTable="state.screenTable" @callback="handleCallback"></IndexTableScreen>
           </div>
         </div>
         <IndexTable class="class-table" v-loading="loading" :tableData="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleCallback">
@@ -64,16 +64,26 @@
 
 <script setup>
 import searchModule from '@views/Components/searchModule/index.vue'
-import IndexTable from '@/components/index-table.vue'
+import IndexTable from '@/components/business/table/index-table.vue'
 import { submitItem } from '@/api/index.js'
+import { useFormStore } from '@/store/formation.js'
 
+const formStore = useFormStore()
+const registerPageActions = inject('registerPageActions', null)
 const tableData = ref([])
 const loading = ref(false)
-const defaultSearchParams = { page: 1, pagesize: 15 }
+const defaultPageSize = 15
+const defaultMeta = () => ({
+  pagination: true,
+  total: 0,
+  page: 1,
+  pageSize: defaultPageSize
+})
 
 const state = reactive({
   searchModel: {},
-  searchParams: { ...defaultSearchParams },
+  searchParams: {},
+  sortingParams: {},
   searchGroups: [
     { label: '', fields: ['company_name', 'credit_code', 'link_man', 'link_phone'] },
     { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
@@ -103,7 +113,8 @@ const state = reactive({
     image_path: ''
   },
   loading: false,
-  meta: {},
+  meta: defaultMeta(),
+  pageKey: 'websitemanagementIndex',
   params: {
     pagination: true, // 是否带分页
     border: true, // 是否带有纵向边框
@@ -120,35 +131,33 @@ const state = reactive({
   },
   totalData: {
     total: 0,
-    request: { url: '', methods: 'post', param: { dataType: 3 } },
+    request: { url: '', method: 'post', param: { dataType: 3 } },
     pageUrl: '/exceptionData?type=3'
   },
   operationTable: {
     Template: { url: '' },
-    Importing: { url: '/v1/companies/company_import', methods: 'post', param: { dataType: 3 } },
-    Export: { url: '', methods: 'post', param: { dataType: 3 } },
-    Assignment: { url: '', methods: 'post', param: { dataType: 3 } },
-    Dispatch: { url: '', methods: 'post', param: { dataType: 3 } },
-    Delete: { url: '', methods: 'post', param: { dataType: 3 } },
-    Marking: { url: '', methods: 'post', param: { dataType: 3 } },
-    Unusual: { url: '', methods: 'post', param: { dataType: 3 } },
-    NewData: { url: '', methods: 'post', param: { dataType: 3 } },
-    Screenshot: { url: '', methods: 'post', param: { dataType: 3 } }
+    Importing: { url: '/v1/companies/company_import', method: 'post', param: { dataType: 3 } },
+    Export: { url: '', method: 'post', param: { dataType: 3 } },
+    Assignment: { url: '', method: 'post', param: { dataType: 3 } },
+    Dispatch: { url: '', method: 'post', param: { dataType: 3 } },
+    Delete: { url: '', method: 'post', param: { dataType: 3 } },
+    Marking: { url: '', method: 'post', param: { dataType: 3 } },
+    Unusual: { url: '', method: 'post', param: { dataType: 3 } },
+    NewData: { url: '', method: 'post', param: { dataType: 3 } },
+    Screenshot: { url: '', method: 'post', param: { dataType: 3 } }
   },
-  screeData: {
+  screenTable: {
     sorting: {
-      url: '',
-      methods: 'post',
-      list: [
+      request: { url: '', method: 'post', param: {} },
+      options: [
         { label: '默认', value: '' },
         { label: '正序', value: 1 },
         { label: '倒序', value: -1 }
       ]
     },
     select: {
-      url: '',
-      methods: 'post',
-      list: [
+      request: { url: '', method: 'post', param: {} },
+      options: [
         { label: '默认', value: '' },
         { label: '载体数', value: 1 },
         { label: '处罚', value: 2 },
@@ -173,17 +182,46 @@ const columns = ref([
   { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
 ])
 
-const getList = (param = state.searchParams, replace = false) => {
-  state.searchParams = replace ? { ...param } : { ...state.searchParams, ...param }
+const getPageParams = () => ({
+  page: state.meta.page,
+  pageSize: state.meta.pageSize
+})
+const buildSearchParams = () => ({
+  ...state.searchParams,
+  ...state.sortingParams,
+  ...getPageParams()
+})
+const savePageQueryCache = () => {
+  formStore.setPageQueryCache(state.pageKey, {
+    searchParams: { ...state.searchParams },
+    sortingParams: { ...state.sortingParams },
+    meta: getPageParams()
+  })
+}
+const restorePageQueryCache = () => {
+  const cache = formStore.getPageQueryCache(state.pageKey)
+  if (!cache) return false
+  state.searchParams = { ...(cache.searchParams || {}) }
+  state.searchModel = { ...state.searchParams }
+  state.sortingParams = { ...(cache.sortingParams || {}) }
+  state.meta = { ...state.meta, ...(cache.meta || {}) }
+  return true
+}
+const setMetaByResponse = (meta = {}) => {
+  state.meta.page = meta.current_page || state.meta.page
+  state.meta.pageSize = meta.per_page || state.meta.pageSize
+  state.meta.total = meta.total || 0
+  state.totalData.total = meta.total || 0
+}
+
+const getList = () => {
+  savePageQueryCache()
   loading.value = true
-  submitItem('/v1/websites', 'get', state.searchParams).then((res) => {
+  submitItem('/v1/websites', 'get', buildSearchParams()).then((res) => {
     loading.value = false
     if (res.code === 200) {
       tableData.value = res.data
-      state.meta.page = res.meta.current_page
-      state.meta.pageSize = res.meta.per_page
-      state.meta.total = res.meta.total
-      state.totalData.total = res.meta.total
+      setMetaByResponse(res.meta)
     } else {
       state.params.emptyText = res.msg || '请求数据失败！'
     }
@@ -191,29 +229,98 @@ const getList = (param = state.searchParams, replace = false) => {
 }
 
 const handleSearch = (params) => {
-  getList({ ...params, page: 1 }, true)
+  state.searchModel = { ...params }
+  state.searchParams = { ...params }
+  state.meta.page = 1
+  getList()
 }
 
 const handleReset = () => {
   state.searchModel = {}
-  state.searchParams = { ...defaultSearchParams }
-  getList(state.searchParams, true)
+  state.searchParams = {}
+  state.sortingParams = {}
+  state.meta.page = 1
+  state.meta.pageSize = defaultPageSize
+  formStore.clearPageQueryCache(state.pageKey)
+  getList()
 }
 
 const handleCallback = (key, val) => {
+  if (key === 'screen') {
+    state.sortingParams = { ...val }
+    state.meta.page = 1
+    getList()
+    return
+  }
   if (key === 'page' || key === 1) {
     state.meta.page = val
-    getList({ page: val })
+    getList()
   }
   if (key === 'size') {
     state.meta.pageSize = val
-    getList({ page: 1, pagesize: val })
+    state.meta.page = 1
+    getList()
   }
 }
 
+const handlePageIntent = (initial = false) => {
+  const intent = formStore.getNavigationIntent(state.pageKey)
+
+  if (intent === 'menu' || intent === 'resetRefresh') {
+    formStore.clearNavigationIntent(state.pageKey)
+    handleReset()
+    return
+  }
+
+  if (intent === 'detailUpdated') {
+    formStore.clearNavigationIntent(state.pageKey)
+    restorePageQueryCache()
+    getList()
+    return
+  }
+
+  if (intent === 'refresh') {
+    formStore.clearNavigationIntent(state.pageKey)
+    getList()
+    return
+  }
+
+  if (initial) {
+    restorePageQueryCache()
+    getList()
+  }
+}
+
+const runPageIntent = (intent) => {
+  formStore.setNavigationIntent(state.pageKey, intent)
+  handlePageIntent()
+}
+
+const registerCurrentPageActions = () => {
+  registerPageActions?.({
+    menu: () => runPageIntent('menu'),
+    refresh: () => runPageIntent('refresh'),
+    resetRefresh: () => runPageIntent('resetRefresh')
+  })
+}
+
+const clearCurrentPageActions = () => {
+  registerPageActions?.({})
+}
+
 onMounted(() => {
-  getList()
+  registerCurrentPageActions()
+  handlePageIntent(true)
 })
+
+onActivated(() => {
+  registerCurrentPageActions()
+  handlePageIntent()
+})
+
+onDeactivated(clearCurrentPageActions)
+
+onUnmounted(clearCurrentPageActions)
 </script>
 
 <style scoped lang="scss">.module_page { height: 100%; overflow: auto; &::-webkit-scrollbar { display: none; } } .refresh-button { display: flex; align-items: center; gap: 8px; padding: 5px 16px; background: #f0f9ff; border: 1px solid #d6ecff; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; color: #1890ff; &:hover { background: #e6f7ff; border-color: #91d5ff; } .refresh-icon { width: 16px; height: 16px; } span { font-size: 14px; } }</style>

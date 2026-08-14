@@ -29,6 +29,7 @@ const props = defineProps({
     default: () => {}
   }
 })
+const emit = defineEmits(['headCallBack'])
 const limit = ref(1)
 const fileList = ref([])
 const request = ref({})
@@ -55,7 +56,7 @@ const requestUpload = (param) => {
     if (res.data.code === 200) {
       fileList.value = []
       ElMessage({ title: '成功', message: `上传文件成功`, type: 'success', placement: 'top-right' })
-      this.$emit('headCallBack', res.data.data)
+      emit('headCallBack', res.data.data)
     } else {
       ElMessage({ title: '警告', message: res.data.msg, type: 'warning', placement: 'top-right' })
     }
@@ -72,13 +73,6 @@ const beforeUpload = (file) => {
   const extension = testmsg === 'xlsx' || testmsg === 'xls'
   if (!extension) {
     ElMessage({ title: '警告', message: `上传文件只能是 xls、xlsx格式!`, type: 'warning', placement: 'top-right' })
-  }
-  if (file.raw) {
-    const reader = new FileReader() // 读取文件内容
-    reader.readAsText(file.raw, 'gb2312')
-    reader.onload = function (e) {
-      console.log(e.target.result)
-    }
   }
   return extension
 }

@@ -1,14 +1,14 @@
 <template>
   <div class="index-tabs-page">
     <el-breadcrumb :separator-icon="ArrowRight" class="tabs-item-card">
-      <el-breadcrumb-item v-for="(item, index) in store.tablist" :key="index" >
-        <p class="class-breadcrumb" @click="goPage(item.url, index + 1)"><i :class="['iconfont', item.icon]"></i>{{item.name}}</p>
+      <el-breadcrumb-item v-for="(item, index) in tabList" :key="item.url || index" >
+        <p class="class-breadcrumb" @click="handleTabClick(item.url, index + 1)"><i :class="['iconfont', item.icon]"></i>{{item.name}}</p>
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="index-tabs-right">
-      <el-button class="tabs-btn-class" :type="item.type" v-for="(item, index) in btnlist" :key="index"
+      <el-button class="tabs-btn-class" :type="item.type" v-for="item in btnlist" :key="item.key"
                  :color="item.color" :icon="item.icon" size="small" circle plain
-                 @click="btnClick(index + 1, item.param)">
+                 @click="btnClick(item.key)">
         <span>{{item.text}}</span>
       </el-button>
       <el-button class="tabs-btn-class theme-btn"  :icon="isDark ? Sunny : Moon" size="small" circle  plain :color="isDark ? '#f5a623' : '#26b0eb'" @click="toggleTheme" :title="isDark ? '切换到浅色模式' : '切换到深色模式'">
@@ -19,65 +19,69 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import {ArrowRight, Search, Edit, Check, Message, Star, Delete, Pointer, Sunny, Moon} from '@element-plus/icons-vue'
+import { computed } from 'vue'
+import { ArrowRight, Sunny, Moon } from '@element-plus/icons-vue'
 import { useSystemStore } from "@/store/system.js";
 import router from "@/router/index.js"
 import { useTheme } from '@/store/userTheme.js'
 import html2canvas from "html2canvas";
 import { ElMessage } from "element-plus";
+import { isValidMenuUrl } from '@/utils/menu.js'
 const store = useSystemStore()
 
-const goPage = (param, index) => {
-  if (param && param !== '/#') {
-    const list = store.tablist.slice(0, index)
-    store.setTablist(list, 1)
-    router.push({ path: param.url })
-  }
+const tabList = computed(() => {
+  return store.tablist?.length ? store.tablist : store.getTablist
+})
+
+const handleTabClick = (url, index) => {
+  if (!isValidMenuUrl(url)) return
+  const list = tabList.value.slice(0, index)
+  store.setTablist(list, 1)
+  router.push({ path: url })
 }
 
-const btnlist = ref([
-  { text: '截图', type: '', color: '#b9b002', icon: 'Camera' },
-  { text: '刷新', type: '', color: '#F56C6C', icon: 'RefreshLeft' },
-])
+const btnlist = [
+  { key: 'screenshot', text: '截图', type: '', color: '#b9b002', icon: 'Camera' },
+  { key: 'reload', text: '刷新', type: '', color: '#F56C6C', icon: 'RefreshLeft' },
+]
 
-const emit = defineEmits(['reload'])
+const emit = defineEmits(['page-action'])
 
 const { toggleTheme, themeMode } = useTheme()
 const isDark = computed(() => themeMode.value === 'dark')
 
-const btnClick = (index) => {
-  if (index === 1) {
-    const cardElement = document.getElementById('app')
-    if (cardElement) {
-      html2canvas(cardElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false
-      }).then(canvas => {
-        const link = document.createElement('a')
-        link.download = `screenshot_${new Date().getTime()}.png`
-        link.href = canvas.toDataURL('image/png')
-        link.click()
-        ElMessage.success('截图成功！')
-      }).catch(error => {
-        console.error('截图失败:', error)
-        ElMessage.error('截图失败，请重试')
-      })
-    } else {
-      ElMessage.warning('未找到可截图的内容')
-    }
+const handleScreenshot = async () => {
+  const cardElement = document.getElementById('app')
+  if (!cardElement) {
+    ElMessage.warning('未找到可截图的内容')
+    return
   }
-  if (index === 2) {
-    emit('reload')
+
+  try {
+    const canvas = await html2canvas(cardElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false
+    })
+    const link = document.createElement('a')
+    link.download = `screenshot_${new Date().getTime()}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+    ElMessage.success('截图成功！')
+  } catch (error) {
+    console.error('截图失败:', error)
+    ElMessage.error('截图失败，请重试')
   }
 }
 
-onMounted(() => {
-  if (!store.tablist) {
-    store.tablist = store.getTablist
-  }
-})
+const handleReload = () => {
+  emit('page-action', 'resetRefresh')
+}
+
+const btnClick = (key) => {
+  if (key === 'screenshot') handleScreenshot()
+  if (key === 'reload') handleReload()
+}
 </script>
 
 <style scoped lang="scss">

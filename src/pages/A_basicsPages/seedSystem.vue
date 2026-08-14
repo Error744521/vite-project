@@ -60,7 +60,7 @@ import { submitItem } from '@/api/index.js'
 import { isUrl } from '@/utils/tools.js'
 import { outlogin } from '@/api/setting.js'
 import WeaterModule from "@views/Components/weaterModule.vue";
-import swiperDom from "@/components/common/swiperDom.vue"
+import swiperDom from "@/components/base/swiperDom.vue"
 
 const router = useRouter()
 const store = useSystemStore()

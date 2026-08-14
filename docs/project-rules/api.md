@@ -220,7 +220,7 @@ API 消息统一合并处理。
 ```js
 const res = await submitItem('/v1/websites', 'get', {
   page: 1,
-  pagesize: 15,
+  pageSize: 15,
   company_name: state.searchModel.company_name
 })
 ```

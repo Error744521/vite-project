@@ -5,24 +5,48 @@ export const useFormStore = defineStore('store', {
   state: () => {
     return {
       State: false, //重新渲染开关
-      // Legacy search state. 新版 searchModule 已改为组件内部管理搜索状态。
+      pageQueryCache: {},
+      navigationIntent: {},
       searchRuleForm: {}, //搜索条件
       searchCondition: [], //查询条件
       selectionMultiple: [] //table 选中
     }
   },
   getters: {
-    getSearchRuleForm: (state) => state.searchRuleForm, //Object.keys(state.searchRuleForm).length > 0 ? state.searchRuleForm : null,
+    getPageQueryCache: (state) => (pageKey) => state.pageQueryCache[pageKey] || null,
+    getNavigationIntent: (state) => (pageKey) => state.navigationIntent[pageKey] || '',
+    getSearchRuleForm: (state) => state.searchRuleForm,
     getSearchCondition: (state) => state.searchCondition,
     getSelectionMultiple: (state) => state.selectionMultiple
   },
   actions: {
+    setPageQueryCache(pageKey, value) {
+      if (!pageKey) return
+      this.pageQueryCache[pageKey] = value
+    },
+    setNavigationIntent(pageKey, intent) {
+      if (!pageKey || !intent) return
+      this.navigationIntent[pageKey] = intent
+    },
+    clearPageQueryCache(pageKey) {
+      if (!pageKey) return
+      delete this.pageQueryCache[pageKey]
+    },
+    clearNavigationIntent(pageKey) {
+      if (!pageKey) return
+      delete this.navigationIntent[pageKey]
+    },
+    clearPageCache(pageKey) {
+      if (!pageKey) return
+      delete this.pageQueryCache[pageKey]
+      delete this.navigationIntent[pageKey]
+    },
     setSearchRuleForm(param, key) {
       if (key) {
-        if (!isNotEmpty(param)) {
-          delete this.searchRuleForm[key]
-        } else {
+        if (isNotEmpty(param)) {
           this.searchRuleForm[key] = param
+        } else {
+          delete this.searchRuleForm[key]
         }
       } else if (param instanceof Object) {
         Object.keys(param).forEach((keys) => {

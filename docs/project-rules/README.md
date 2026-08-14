@@ -1,6 +1,7 @@
 # Project Rules
 
 - [API 规则](./api.md)
+- [变更流程规则](./change-process.md)
 - [动态表单规则](./dynamic-form.md)
 - [环境变量规则](./env.md)
 - [前端规则](./frontend.md)

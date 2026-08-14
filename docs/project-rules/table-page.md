@@ -45,7 +45,7 @@ const tableData = ref([])
 
 const defaultSearchParams = {
   page: 1,
-  pagesize: 15
+  pageSize: 15
 }
 
 const state = reactive({
@@ -59,7 +59,7 @@ const state = reactive({
     pagination: true,
     total: 0,
     page: 1,
-    pagesize: 15
+    pageSize: 15
   },
   params: {}
 })
@@ -79,7 +79,7 @@ const getList = (param = state.searchParams, replace = false) => {
     if (res.code === 200) {
       tableData.value = res.data
       state.meta.page = res.meta.current_page
-      state.meta.pagesize = res.meta.per_page
+      state.meta.pageSize = res.meta.per_page
       state.meta.total = res.meta.total
     }
   })
@@ -118,13 +118,58 @@ const handleSubmit = (key, val) => {
   }
 
   if (key === 'size') {
-    state.meta.pagesize = val
-    getList({ page: 1, pagesize: val })
+    state.meta.pageSize = val
+    getList({ page: 1, pageSize: val })
   }
 }
 ```
 
 切换每页条数时，页码必须重置为第一页。
+
+## 页面意图规则
+
+表格页面必须通过 `pageKey + navigationIntent` 判断页面进入意图。
+
+页面自己决定重置、恢复或刷新，不在路由守卫中直接处理页面状态。
+
+推荐写法：
+
+```js
+const handlePageIntent = () => {
+  const intent = formStore.getNavigationIntent(state.pageKey)
+
+  if (intent === 'menu' || intent === 'resetRefresh') {
+    formStore.clearNavigationIntent(state.pageKey)
+    handleReset()
+    return
+  }
+
+  if (intent === 'detailUpdated') {
+    formStore.clearNavigationIntent(state.pageKey)
+    restorePageQueryCache()
+    getList()
+    return
+  }
+
+  if (intent === 'refresh') {
+    formStore.clearNavigationIntent(state.pageKey)
+    getList()
+    return
+  }
+
+  restorePageQueryCache()
+  getList()
+}
+```
+
+意图说明：
+
+- `menu`：从菜单进入，清空条件、分页、排序、缓存，并重新请求。
+- `detailUpdated`：详情页修改数据后返回，保留条件并重新请求。
+- `resetRefresh`：主动恢复初始状态，并重新请求。
+- `refresh`：保留当前条件，只重新请求。
+- `back`：返回页面，保留条件。
+- `replace`：替换进入页面，按页面自身规则处理。
 
 ## 操作栏规则
 

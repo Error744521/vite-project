@@ -1,19 +1,16 @@
 <template>
-  <div>
     <div v-if="operationList.length > 0" class="class-table-operation">
       <div v-for="item in operationList" :key="item.key">
         <p v-if="item.type === 'upload'" class="template_flag">
           <uploadFile :itemData="item" :tipShow="false" />
         </p>
-        <el-button v-else class="template_flag" :type="item.type" plain :link="item.type === 'link' ? true : false"
-                   :color="item.color" :icon="item.icon" :loading="loadingKey === item.key"
-                   :disabled="Boolean(loadingKey)" @click="handleClick(item)">
+        <el-button v-else class="template_flag" :type="item.buttonType || 'default'" plain :link="item.type === 'link'"
+                   :color="item.color" :icon="item.icon" :loading="loadingKey === item.key" :disabled="Boolean(loadingKey)" @click="handleClick(item)">
           {{ item.text }}
         </el-button>
       </div>
     </div>
     <component :is="activeOperationComponent" v-if="activeOperationComponent" v-model:visible="dialogVisible" @confirm="handleDialogConfirm" />
-  </div>
 </template>
 
 <script setup>
@@ -34,20 +31,20 @@ const loadingKey = ref('')
 
 const operationItems = [
   { key: 'Linking', text: '链接', type: 'link', color: '#409EFF', icon: '' },
-  { key: 'Template', text: '下载模板', type: 'link', color: '#409EFF', icon: '' },
-  { key: 'Importing', text: '导入', type: 'default', color: '#409EFF', icon: 'UploadFilled', accept: '.xls,.xlsx', limit: 1 },
-  { key: 'Export', text: '导出', type: 'default', color: '#909399', icon: 'DocumentCopy' },
-  { key: 'NewData', text: '新增', type: 'default', color: '#15b48f', icon: 'DocumentAdd' },
-  { key: 'Assignment', text: '指派', type: 'default', color: '#0db1f6', icon: 'Pointer' },
-  { key: 'Dispatch', text: '分派', type: 'default', color: '#11b6b6', icon: 'Guide' },
-  { key: 'Marking', text: '打标', type: 'default', color: '#76b21a', icon: 'CopyDocument' },
-  { key: 'Unusual', text: '异常', type: 'danger', color: '#E6A23C', icon: 'WarnTriangleFilled' },
-  { key: 'Delete', text: '删除', type: 'warning', color: '#F56C6C', icon: 'Delete' }
+  { key: 'Template', text: '下载模板', type: 'download', color: '#409EFF', icon: '' },
+  { key: 'Importing', text: '导入', type: 'upload', color: '#409EFF', icon: 'UploadFilled', accept: '.xls,.xlsx', limit: 1 },
+  { key: 'Export', text: '导出', type: 'dialog', color: '#909399', icon: 'DocumentCopy' },
+  { key: 'NewData', text: '新增', type: 'router', color: '#15b48f', icon: 'DocumentAdd' },
+  { key: 'Assignment', text: '指派', type: 'dialog', color: '#0db1f6', icon: 'Pointer' },
+  { key: 'Dispatch', text: '分派', type: 'dialog', color: '#11b6b6', icon: 'Guide' },
+  { key: 'Marking', text: '打标', type: 'dialog', color: '#76b21a', icon: 'CopyDocument' },
+  { key: 'Unusual', text: '异常', type: 'dialog', color: '#E6A23C', icon: 'WarnTriangleFilled' },
+  { key: 'Delete', text: '删除', type: 'request', buttonType: 'warning', color: '#F56C6C', icon: 'Delete' }
 ]
 
 const handleClick = async (item) => {
   if (loadingKey.value) return
-  if (item.key === 'Linking') {
+  if (item.type === 'link') {
     if (item.request?.url) {
       goPage(item.request.url)
     } else {
@@ -55,12 +52,21 @@ const handleClick = async (item) => {
     }
     return
   }
-  if (['Export', 'Assignment', 'Dispatch', 'Marking', 'Unusual'].includes(item.key)) {
+  if (item.type === 'dialog') {
     activeOperation.value = item
     dialogVisible.value = true
     return
   }
-  if (item.key === 'Template') {
+  if (item.type === 'router') {
+    if (item.request?.url) {
+      goPage(item.request.url)
+      emit('callback', item.key, item.request, item)
+    } else {
+      ElMessage.warning('跳转地址不存在')
+    }
+    return
+  }
+  if (item.type === 'download') {
     loadingKey.value = item.key
     try {
       const res = await requestAction(item.request)
@@ -76,11 +82,14 @@ const handleClick = async (item) => {
     }
     return
   }
-  if (item.key === 'Delete') {
+  if (item.type === 'request') {
     loadingKey.value = item.key
     try {
       const res = await requestAction(item.request)
-      emit('callback', 'refresh')
+      emit('callback', item.key, res, item)
+      if (item.refresh !== false) {
+        emit('callback', 'refresh')
+      }
     } finally {
       loadingKey.value = ''
     }
@@ -88,7 +97,7 @@ const handleClick = async (item) => {
 }
 const requestAction = (request = {}) => {
   const url = request.url
-  const method = request.methods || 'get'
+  const method = request.method || 'get'
   const param = request.param || {}
   if (!url) {
     ElMessage.warning('请求地址不存在')

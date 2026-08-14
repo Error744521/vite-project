@@ -12,7 +12,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
 import { fieldLabel, fieldPlaceholder } from './fieldProps.js'
 
 const props = defineProps({

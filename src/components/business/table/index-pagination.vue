@@ -12,8 +12,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useFormStore } from "@/store/formation.js";
-const store = useFormStore()
+
 const props = defineProps({
   page: {
     type: [Number, String],
@@ -54,12 +53,10 @@ const pageSizeModel = computed({
 })
 
 const handleCurrentChange = (page) => {
-  store.setSearchRuleForm(page, 'page')
   emit('current-change', page, 'page')
 }
 
 const handleSizeChange = (size) => {
-  store.setSearchRuleForm({ page: 1, pageSize: size })
   emit('size-change', size, 'size')
 }
 

@@ -1,18 +1,6 @@
 <template>
   <div class="upload-image-wrapper">
-    <el-upload
-      class="upload-image"
-      :action="''"
-      :multiple="multiple"
-      :limit="limit"
-      :file-list="fileList"
-      :http-request="handleUpload"
-      :on-exceed="handleExceed"
-      :before-upload="beforeUpload"
-      :on-remove="handleRemove"
-      :accept="accept"
-      :disabled="disabled"
-    >
+    <el-upload class="upload-image" :action="''" :multiple="multiple" :limit="limit" :file-list="fileList" :http-request="handleUpload" :on-exceed="handleExceed" :before-upload="beforeUpload" :on-remove="handleRemove" :accept="accept" :disabled="disabled">
       <div class="upload-btn" v-if="fileList.length < limit">
         <el-icon :size="24"><Plus /></el-icon>
         <span>{{ uploadText }}</span>
@@ -20,27 +8,15 @@
     </el-upload>
 
     <div class="preview-list" v-if="fileList.length > 0">
-      <div
-        v-for="(file, index) in fileList"
-        :key="file.uid"
-        class="preview-item"
-      >
+      <div v-for="(file, index) in fileList" :key="file.uid" class="preview-item">
         <img :src="file.url || file.preview" :alt="file.name" class="preview-image" />
         <div class="preview-mask">
           <span class="preview-name">{{ file.name }}</span>
           <div class="preview-actions">
-            <el-icon 
-              class="action-icon zoom" 
-              @click.stop="previewImage(file)" 
-              title="预览"
-            >
+            <el-icon class="action-icon zoom" @click.stop="previewImage(file)" title="预览">
               <ZoomIn />
             </el-icon>
-            <el-icon 
-              class="action-icon delete" 
-              @click.stop="handleRemove(file, fileList)" 
-              title="删除"
-            >
+            <el-icon class="action-icon delete" @click.stop="handleRemove(file, fileList)" title="删除">
               <Delete />
             </el-icon>
           </div>
@@ -48,23 +24,16 @@
       </div>
     </div>
 
-    <el-image-viewer
-      v-if="previewVisible"
-      :url-list="previewUrlList"
-      :initial-index="previewIndex"
-      @close="previewVisible = false"
-    />
+    <el-image-viewer v-if="previewVisible" :url-list="previewUrlList" :initial-index="previewIndex" @close="previewVisible = false"/>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
 import { ElMessage, ElImageViewer } from 'element-plus'
 import { Plus, ZoomIn, Delete } from '@element-plus/icons-vue'
 import { useSystemStore } from '@/store/system.js'
 
 const systemStore = useSystemStore()
-
 const props = defineProps({
   modelValue: {
     type: Array,
@@ -145,7 +114,6 @@ const beforeUpload = (file) => {
 const handleUpload = async (param) => {
   const formData = new FormData()
   formData.append('file', param.file)
-
   try {
     const response = await fetch(props.uploadUrl, {
       method: 'POST',
@@ -155,9 +123,7 @@ const handleUpload = async (param) => {
       body: formData,
       credentials: props.withCredentials ? 'include' : 'omit'
     })
-
     const result = await response.json()
-
     if (result.code === 200) {
       const fileItem = {
         uid: param.file.uid,
@@ -166,7 +132,6 @@ const handleUpload = async (param) => {
         status: 'success',
         response: result.data
       }
-
       fileList.value.push(fileItem)
       emit('update:modelValue', fileList.value)
       emit('success', result.data)
