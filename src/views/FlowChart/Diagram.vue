@@ -78,7 +78,6 @@ export default {
       this.lf.on('selection:selected,FlowChart:click,blank:click,edge:click', () => {
         this.$nextTick(() => {
           const { nodes, edges } = this.lf.getSelectElements()
-          this.$set(this, 'activeNodes', nodes)
           this.activeNodes = nodes
           this.activeEdges = edges
           this.$_getProperty()

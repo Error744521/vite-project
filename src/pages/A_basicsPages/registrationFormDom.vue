@@ -6,7 +6,7 @@
     </div>
 
     <div class="form-wrapper">
-      <rule-form :fields="formFields" v-model="formData" @setCallback="handleSubmit" />
+      <rule-form :fields="formFields" v-model="formData" @submit="handleSubmit" />
     </div>
 
     <div class="form-preview">
@@ -19,22 +19,12 @@
 <script setup>
 import RuleForm from '@views/Components/ruleFormModule/index.vue'
 import ObjectForm from '@views/Components/ruleFormModule/public.js'
-import {ref, computed, onMounted} from 'vue'
 
 const formData = ref({company_name: '12321', category_id: [2, 22]})
-const formFields = computed(() => {
-  console.log('ObjectForm:', ObjectForm)
-  const fields = Object.entries(ObjectForm).map(([key, config]) => ({...config, key: key}))
-  console.log('formFields:', fields)
-  return fields
-})
+const formFields = computed(() => Object.values(ObjectForm))
 const handleSubmit = (data) => {
-  console.log('表单提交:', data)
   alert('表单验证通过！\n\n' + JSON.stringify(data, null, 2))
 }
-onMounted(() => {
-  console.log('表单字段数量:', formFields.value.length)
-})
 </script>
 
 <style scoped lang="scss">

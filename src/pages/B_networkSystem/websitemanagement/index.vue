@@ -39,7 +39,7 @@
               </template>
             </el-popover>
           </template>
-          <template #operation="{ row }">
+          <template #operation>
             <el-button type="primary" link>详情</el-button>
             <!-- @click="detailLook(row)" -->
             <el-popover trigger="hover" placement="top">

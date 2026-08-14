@@ -64,6 +64,7 @@ const convertPathToCamelCase = (path) => {
       subName = { path: `/${fastPart}${lastPart}`, name: `${fastPart}${lastPart}` }
     } else {
       subName = { path: `/${fastPart}${lastPart}/:id?/:type?`, name: `${fastPart}${lastPart}` }
+      console.log(subName)
     }
   }
   subName.meta = createRouteMeta({ routeName: subName.name, lastName, fastPart })

@@ -8,7 +8,7 @@
     </el-upload>
 
     <div class="preview-list" v-if="fileList.length > 0">
-      <div v-for="(file, index) in fileList" :key="file.uid" class="preview-item">
+      <div v-for="file in fileList" :key="file.uid" class="preview-item">
         <img :src="file.url || file.preview" :alt="file.name" class="preview-image" />
         <div class="preview-mask">
           <span class="preview-name">{{ file.name }}</span>

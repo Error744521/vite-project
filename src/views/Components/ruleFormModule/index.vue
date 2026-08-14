@@ -1,10 +1,9 @@
 <template>
-  <el-form ref="refForm" v-loading="loading" :model="ruleForm" :rules="rules" :label-width="labelWidth" class="demo-form">
-    <div v-for="(item, index) in listForm" :key="index">
-      <el-form-item :label="item.show ? item.label : ''" :prop="item.key">
-        <component :is="getComponent(item.component)" v-model="ruleForm[item.key]" :attributes="item" />
-      </el-form-item>
-    </div>
+  <el-form ref="formRef" v-loading="loading" :model="ruleForm" :rules="rules" :label-width="labelWidth" class="demo-form">
+    <el-form-item v-for="field in formFields" :key="field.key" :label="field.show ? field.label : ''" :prop="field.key">
+      <component class="class-component" :is="getComponent(field.component)"
+        v-model="ruleForm[field.key]" :field="field" :options="optionsMap[field.key] || []" :loading="loadingMap[field.key] || false" :load-options="loadOptions"/>
+    </el-form-item>
     <el-form-item label="" class="class-form-button">
       <el-button @click="resetForm" :icon="Refresh">重置</el-button>
       <el-button type="primary" @click="submitForm" :icon="Finished">提交</el-button>
@@ -13,125 +12,208 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
 import { Finished, Refresh } from '@element-plus/icons-vue'
+import { submitItem } from '@/api/index.js'
+import { normalizeOptions } from '@/api/useFieldOptions.js'
 import components from './index.js'
 
-const emit = defineEmits(['setCallback', 'update:modelValue'])
+const emit = defineEmits(['submit', 'reset', 'update:modelValue'])
 const props = defineProps({
   fields: {
     type: Array,
-    default: () => [],
-    description: '字段配置数组，包含完整的字段定义'
+    default: () => []
   },
   modelValue: {
     type: Object,
     default: () => ({})
+  },
+  labelWidth: {
+    type: String,
+    default: '20em'
   }
 })
 
-const refForm = ref(null)
+const formRef = ref(null)
 const ruleForm = ref({})
 const loading = ref(false)
-const listForm = ref([])
-const labelWidth = ref('20em')
+const loadingMap = ref({})
+const optionsMap = ref({})
+const formFields = ref([])
+
+const labelWidth = computed(() => props.labelWidth)
 
 const getComponent = (name) => components[name]
 
-const getDefaultValue = (item) => {
-  if (!item) return ''
-  switch (item.component) {
-    case 'inputForm': return ''
-    case 'textareaForm': return ''
-    case 'selectForm': return item.multiple ? [] : ''
-    case 'groupSelectForm': return ['', '']
-    case 'groupRadioForm': return ''
-    case 'datepickerForm': return item.type === 'daterange' ? [] : ''
-    case 'cascaderForm': return item.multiple ? [] : ''
-    case 'autocompleteForm': return ''
-    case 'uploadFileForm': return ''
-    case 'uploadPictureForm': return []
-    default: return ''
+const cloneValue = (value) => {
+  if (Array.isArray(value)) return [...value]
+  if (value && typeof value === 'object') return { ...value }
+  return value
+}
+
+const getDefaultValue = (field = {}) => {
+  if (field.defaultValue !== undefined) return cloneValue(field.defaultValue)
+  if (field.type === 'Array') return []
+
+  switch (field.component) {
+    case 'selectForm':
+      return field.multiple ? [] : ''
+    case 'groupSelectForm':
+      return ['', '']
+    case 'datepickerForm':
+      return field.type === 'daterange' ? [] : ''
+    case 'cascaderForm':
+      return field.multiple ? [] : ''
+    case 'uploadPictureForm':
+      return []
+    default:
+      return ''
   }
 }
 
-const initForm = (fields) => {
-  ruleForm.value = {}
-  listForm.value = []
-  fields.forEach(field => {
-    const config = {
-      component: field.component,
-      type: field.type,
-      label: field.label,
-      key: field.key,
-      rules: field.rules || [],
-      show: field.show !== false,
-      labelWidth: field.labelWidth || labelWidth.value,
-      ...field
-    }
-    ruleForm.value[field.key] = props.modelValue[field.key] ?? getDefaultValue(config)
-    listForm.value.push(config)
-  })
+const normalizeField = (field = {}) => ({
+  component: field.component,
+  type: field.type,
+  label: field.label || field.key || '',
+  key: field.key,
+  options: field.options || [],
+  request: field.request || null,
+  rules: field.rules || [],
+  show: field.show !== false,
+  labelWidth: field.labelWidth || props.labelWidth,
+  ...field
+})
+
+const createInitialModel = (fields = [], source = {}) => {
+  return fields.reduce((model, field) => {
+    model[field.key] = source[field.key] !== undefined ? cloneValue(source[field.key]) : getDefaultValue(field)
+    return model
+  }, {})
+}
+
+const initForm = async () => {
+  formFields.value = props.fields.map(normalizeField).filter((field) => field.key && field.component)
+  ruleForm.value = createInitialModel(formFields.value, props.modelValue || {})
+  await loadAllOptions()
 }
 
 const rules = computed(() => {
-  const result = {}
-  listForm.value.forEach(item => {
-    if (item.rules) {
-      result[item.key] = item.rules
+  return formFields.value.reduce((result, field) => {
+    if (field.rules && field.rules.length > 0) {
+      result[field.key] = field.rules
     }
-  })
-  return result
+    return result
+  }, {})
 })
 
-watch(() => props.fields, (val) => {
-  if (val && val.length > 0) {
-    initForm(val)
-  }
-}, { immediate: true })
+const getRequestConfig = (field = {}, requestIndex = 0) => {
+  return Array.isArray(field.request) ? field.request[requestIndex] : field.request
+}
 
-watch(() => props.modelValue, (val) => {
-  if (val && Object.keys(val).length > 0) {
-    Object.keys(val).forEach(key => {
-      if (ruleForm.value[key] !== undefined) {
-        ruleForm.value[key] = val[key]
-      }
-    })
+const OPTION_COMPONENTS = new Set([
+  'selectForm',
+  'groupSelectForm',
+  'groupRadioForm',
+  'cascaderForm',
+  'autocompleteForm'
+])
+
+const isOptionField = (field = {}) => OPTION_COMPONENTS.has(field.component)
+
+const setOptions = (field, options, requestIndex = 0) => {
+  if (field.component === 'groupSelectForm') {
+    const current = Array.isArray(optionsMap.value[field.key]?.[0]) ? [...optionsMap.value[field.key]] : [[], []]
+    current[requestIndex] = options
+    optionsMap.value[field.key] = current
+    return
   }
+
+  optionsMap.value[field.key] = options
+}
+
+const loadOptions = async (field = {}, extraParam = {}, requestIndex = 0) => {
+  const request = getRequestConfig(field, requestIndex)
+  const staticOptions = field.component === 'groupSelectForm' && Array.isArray(field.options?.[requestIndex])
+    ? field.options[requestIndex]
+    : field.options
+
+  if (staticOptions && staticOptions.length > 0 && requestIndex === 0) {
+    const options = normalizeOptions(staticOptions, request || {})
+    setOptions(field, options, requestIndex)
+    return options
+  }
+
+  if (!request || !request.url) {
+    setOptions(field, [], requestIndex)
+    return []
+  }
+
+  loadingMap.value[field.key] = true
+  try {
+    const response = await submitItem(request.url, request.method || 'get', { ...(request.param || {}), ...extraParam })
+    const options = normalizeOptions(response?.data || [], request)
+    setOptions(field, options, requestIndex)
+    return options
+  } catch {
+    setOptions(field, [], requestIndex)
+    return []
+  } finally {
+    loadingMap.value[field.key] = false
+  }
+}
+
+const loadAllOptions = async () => {
+  loading.value = true
+  try {
+    const optionFields = formFields.value.filter((field) => {
+      return isOptionField(field) && ((field.options && field.options.length > 0) || field.request)
+    })
+    await Promise.all(optionFields.map((field) => loadOptions(field)))
+  } finally {
+    loading.value = false
+  }
+}
+
+watch(() => props.fields, initForm, { deep: true, immediate: true })
+
+watch(() => props.modelValue, (value) => {
+  ruleForm.value = createInitialModel(formFields.value, value || {})
 }, { deep: true })
 
-watch(ruleForm, (val) => {
-  emit('update:modelValue', { ...val })
+watch(ruleForm, (value) => {
+  emit('update:modelValue', { ...value })
 }, { deep: true })
 
 const submitForm = async () => {
-  if (!refForm.value) return
-  await refForm.value.validate((valid) => {
-    if (valid) {
-      emit('setCallback', { ...ruleForm.value })
-    }
-  })
+  if (!formRef.value) return
+  const valid = await formRef.value.validate().catch(() => false)
+  if (valid) {
+    emit('submit', { ...ruleForm.value })
+  }
 }
 
 const resetForm = () => {
-  if (!refForm.value) return
-  refForm.value.resetFields()
-  Object.keys(ruleForm.value).forEach(key => {
-    const item = listForm.value.find(item => item.key === key)
-    ruleForm.value[key] = getDefaultValue(item)
+  ruleForm.value = createInitialModel(formFields.value)
+  nextTick(() => {
+    formRef.value?.clearValidate()
   })
+  emit('reset', { ...ruleForm.value })
 }
 
-onMounted(() => {
-  if (props.fields && props.fields.length > 0) {
-    initForm(props.fields)
-  }
+defineExpose({
+  submitForm,
+  resetForm,
+  clearValidate: () => formRef.value?.clearValidate(),
+  validate: () => formRef.value?.validate()
 })
 </script>
 
 <style scoped lang="scss">
 .demo-form {
-  margin-right: 15em;
+  margin: 2em 5em;
+  .class-component{
+    width: 100%;
+    text-align: left;
+  }
   .class-form-button {
     :deep(.el-form-item__content) {
       width: 100%;

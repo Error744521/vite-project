@@ -1,10 +1,14 @@
 <template>
   <el-form-item :label="fieldLabel(field)" :prop="field.key" >
     <el-checkbox-group :model-value="modelValue" @update:model-value="changeInput" class="class-padding-p-line">
-      <el-checkbox v-if="field.type === 'checkbox'" v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-checkbox>
-      <el-checkbox-button v-if="field.type === 'button'" v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-        <span class="class-radio-button">{{item.label}}</span>
-      </el-checkbox-button>
+      <template v-if="field.type === 'checkbox'">
+        <el-checkbox v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-checkbox>
+      </template>
+      <template v-if="field.type === 'button'">
+        <el-checkbox-button v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+          <span class="class-radio-button">{{item.label}}</span>
+        </el-checkbox-button>
+      </template>
     </el-checkbox-group>
   </el-form-item>
 </template>

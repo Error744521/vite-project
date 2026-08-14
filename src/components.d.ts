@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     DescriptionsDom: typeof import('./components/base/descriptionsDom.vue')['default']
     DialogDom: typeof import('./components/base/dialogDom.vue')['default']
+    ElAffix: typeof import('element-plus/es')['ElAffix']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElBreadcrumb: typeof import('element-plus/es')['ElBreadcrumb']

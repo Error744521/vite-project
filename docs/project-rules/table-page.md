@@ -21,7 +21,7 @@
     <div class="class-flex">
       <index-total :totalData="state.totalData" />
       <index-table-operation :operationTable="state.operationTable" @callback="handleSubmit" />
-      <index-table-screen :screeTable="state.screeTable" @callback="handleSubmit" />
+      <index-table-screen :screenTable="state.screenTable" @callback="handleSubmit" />
     </div>
 
     <index-table
@@ -54,7 +54,7 @@ const state = reactive({
   searchGroups: [],
   totalData: {},
   operationTable: {},
-  screeTable: {},
+  screenTable: {},
   meta: {
     pagination: true,
     total: 0,
@@ -185,6 +185,6 @@ const handlePageIntent = () => {
 
 1. 表格筛选栏统一使用 `index-table-screen`。
 
-2. 筛选配置统一放在 `state.screeTable`。
+2. 筛选配置统一放在 `state.screenTable`。
 
 3. 筛选动作通过统一 callback 回到页面，由页面决定是否重新请求列表。

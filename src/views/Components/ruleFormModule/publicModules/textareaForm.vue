@@ -1,11 +1,20 @@
 <template>
-  <el-input :model-value="modelValue" type="textarea" :placeholder="'请输入' + attributes.label" :rows="attributes.rows || 3" @input="handleInput" />
+  <el-input
+    :model-value="modelValue"
+    type="textarea"
+    :placeholder="field.placeholder || `请输入${field.label || ''}`"
+    :rows="field.rows || 3"
+    :disabled="field.disabled"
+    :maxlength="field.maxlength"
+    clearable
+    @input="handleInput"
+  />
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   modelValue: { type: String, default: '' },
-  attributes: { type: Object, default: () => ({}) }
+  field: { type: Object, default: () => ({}) }
 })
 const emit = defineEmits(['update:modelValue'])
 
@@ -13,6 +22,3 @@ const handleInput = (value) => {
   emit('update:modelValue', value)
 }
 </script>
-
-<style scoped lang="scss">
-</style>

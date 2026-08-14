@@ -44,7 +44,7 @@
             </template>
           </el-popover>
         </template>
-        <template #operation="{ row }">
+        <template #operation>
           <el-button  type="primary" link >详情</el-button> <!-- @click="detailLook(row)" -->
           <el-popover trigger="hover" placement="top">
             <el-button  type="primary" link >转平台</el-button> <!-- @click="reverseItem(row.id)" -->
@@ -92,12 +92,12 @@ const state = reactive({
     Template: { url: '/v1/companies/down_template', method: 'post', param: { } },
     Importing: { url: '/v1/companies/company_import', method: 'post', param: { } },
     Export: { url: '/v1/companies/export', method: 'post', param: { dataType: 3 } },
-    Assignment: { url: '', method: 'post', param: { dataType: 3 } },
-    Dispatch: { url: '', method: 'post', param: { dataType: 3 } },
-    Delete: { url: '', method: 'post', param: { dataType: 3 } },
-    Marking: { url: '', method: 'post', param: { dataType: 3 } },
+    Assignment: { url: '/v1/assigns', method: 'post', param: { dataType: 3 } },
+    Dispatch: { url: '/v1/assigns', method: 'post', param: { dataType: 3 } },
+    Delete: { url: '/v1/companies', method: 'delete', param: { dataType: 3 } },
+    Marking: { url: '/v1/labels/edit', method: 'post', param: { dataType: 3 } },
     Unusual: { url: '', method: 'post', param: { dataType: 3 } },
-    NewData: { url: '', method: 'post', param: { dataType: 3 } },
+    NewData: { url: '/registerBodyEdit' },
     Screenshot: { url: '', method: 'post', param: { dataType: 3 } }
   },
   screenTable: {
@@ -184,7 +184,7 @@ const setMetaByResponse = (meta = {}) => {
 const getList = () => {
   savePageQueryCache()
   state.loading = true
-  submitItem('/v1/websites', 'get', buildSearchParams()).then((res) => {
+  submitItem('/v1/companies', 'get', buildSearchParams()).then((res) => {
     state.loading = false
     if (res.code === 200) {
       state.tableData = res.data
@@ -219,6 +219,9 @@ const handleSubmit = (key, params) => {
   }
   if(key === 'update') {
     getList()
+  }
+  if(key === 'refresh') {
+    handleReset()
   }
   if (key === 'page' || key === 1) {
     state.meta.page = params

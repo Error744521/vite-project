@@ -2,7 +2,7 @@
   <div class="index-content-page">
     <div class="iconfont-page">
       <div class="card">
-        <h2><span></span>使用png <code>&lt;img src="url" alt="" /&gt</code></h2>
+        <h2><span></span>使用png <code>&lt;img src="url" alt="" /&gt;</code></h2>
         <ul class="icon-all-list">
           <li v-for="(item, index) in state.pnglist" :key="index">
             <p><img :src="item.url" alt="" /></p>

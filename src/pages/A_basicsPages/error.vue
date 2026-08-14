@@ -9,7 +9,7 @@
             <p class="error_status" v-if="pageData.type > 1">{{pageData.type}}</p>
             <h2 class="error_text">{{pageData.message}}</h2>
             <p class="error_btn">
-              <span @click="goPage(pageData.url)">{{pageData.text}} &gt&gt</span>
+              <span @click="goPage(pageData.url)">{{pageData.text}} &gt;&gt;</span>
             </p>
           </div>
       </div>

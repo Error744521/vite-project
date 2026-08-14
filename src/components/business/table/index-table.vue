@@ -9,9 +9,9 @@
       :empty-text="props.params.emptyText"
       :row-key="rowKey"
       :show-overflow-tooltip="props.params.showOverflowTooltip"
-      :header-cell-class-name="params.headerCellClassName"
-      :cell-class-name="params.cellClassName"
-      :row-class-name="params.rowClassName"
+      :header-cell-class-name="tableClassNames.headerCellClassName"
+      :cell-class-name="tableClassNames.cellClassName"
+      :row-class-name="tableClassNames.rowClassName"
       @selection-change="handleSelectionChange"
       @sort-change="handleSortChange"
       @row-click="handleRowClick"
@@ -23,7 +23,7 @@
       <el-table-column v-if="props.params.showIndex" type="index" label="序号" width="60" align="center" :index="getIndexMethod" />
       <el-table-column v-if="props.params.expand" type="expand" width="50">
         <template #default="scope">
-          <slot name="expand" :row="scope.row" :$index="scope.$index"></slot>
+          <slot name="expand" :row="scope.row" :index="scope.$index"></slot>
         </template>
       </el-table-column>
       <template v-for="column in columns" :key="column.prop">
@@ -36,7 +36,7 @@
           :formatter="column.formatter"
         >
           <template v-if="column.slot" #default="scope">
-            <slot :name="column.slot" :row="scope.row" :column="column" :$index="scope.$index"></slot>
+            <slot :name="column.slot" :row="scope.row" :column="column" :index="scope.$index"></slot>
           </template>
           <template v-else-if="column.render" #default="scope">
             <component :is="column.render(scope.row, scope.$index)" />
@@ -57,7 +57,7 @@
       </template>
       <template #empty>
         <slot name="empty">
-          <el-empty :description="params.emptyText" />
+          <el-empty :description="props.params.emptyText" />
         </slot>
       </template>
     </el-table>
@@ -90,7 +90,7 @@ const props = defineProps({
   selectable: {type: Function, default: null}
 })
 const emit = defineEmits(['callback', 'selection-change', 'sort-change', 'row-click', 'row-dblclick', 'cell-click', 'expand-change', 'link-click'])
-const params = ref({
+const tableClassNames = ref({
   rowClassName: 'rowClassName',
   cellClassName: 'cellClassName', //单元格的 className 的回调方法，也可以使用字符串为所有单元格设置一个固定的 className。
   headerCellClassName: 'headerCellClassName' //表头行的 className 的回调方法，也可以使用字符串为所有表头行设置一个固定的 className。

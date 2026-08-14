@@ -16,9 +16,9 @@
     <div class="dialog-body">
       <slot name="content"></slot>
     </div>
-    <template #footer>
+    <template v-if="hasFooter" #footer>
       <slot name="footer">
-        <div class="dialog-footer" v-if="showFooter">
+        <div class="dialog-footer">
           <el-button :disabled="loading" @click="handleCancel">{{ cancelText }}</el-button>
           <el-button type="primary" :loading="loading" :disabled="loading" @click="handleConfirm">{{ confirmText }}</el-button>
         </div>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, useSlots } from 'vue'
 
 const props = defineProps({
   title: {
@@ -82,6 +82,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'open', 'close'])
+const slots = useSlots()
 
 const dialogVisible = computed({
   get: () => props.visible,
@@ -89,6 +90,8 @@ const dialogVisible = computed({
     emit('update:visible', value)
   }
 })
+
+const hasFooter = computed(() => Boolean(slots.footer) || props.showFooter)
 
 const handleBeforeClose = (done) => {
   if (props.loading) return
@@ -108,27 +111,23 @@ const handleConfirm = () => {
 </script>
 
 <style scoped lang="scss">
-:deep(.custom-dialog) {
-  .el-dialog__header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--el-border-color);
-  }
+:global(.custom-dialog .el-dialog__header) {
+  border-bottom: 1px solid var(--el-border-color);
+  text-align: left;
+  padding-left: 15px;
+}
 
-  .el-dialog__title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-  }
+:global(.custom-dialog .el-dialog__body) {
+  padding: 20px 20px 10px 20px;
+  min-height: 100px;
+  height: auto;
+  max-height: 70vh;
+  overflow: auto;
+}
 
-  .el-dialog__body {
-    padding: 20px;
-    min-height: 100px;
-  }
-
-  .el-dialog__footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--el-border-color);
-  }
+:global(.custom-dialog .el-dialog__footer) {
+  padding: 16px 20px;
+  border-top: 1px solid var(--el-border-color);
 }
 
 .dialog-body {

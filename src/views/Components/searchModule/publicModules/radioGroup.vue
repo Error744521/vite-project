@@ -1,10 +1,14 @@
 <template>
   <el-form-item :label="fieldLabel(field)" :prop="field.key">
     <el-radio-group :model-value="modelValue" @update:model-value="changeInput" class="class-padding-p-line">
-      <el-radio v-if="field.type === 'radio'" v-for="item in options" :key="item.value" :value="item.value">{{item.label}}</el-radio>
-      <el-radio-button v-if="field.type === 'button'" v-for="item in options" :key="item.value" :value="item.value">
-        <span class="class-radio-button">{{item.label}}</span>
-      </el-radio-button>
+      <template v-if="field.type === 'radio'">
+        <el-radio v-for="item in options" :key="item.value" :value="item.value">{{item.label}}</el-radio>
+      </template>
+      <template v-if="field.type === 'button'">
+        <el-radio-button v-for="item in options" :key="item.value" :value="item.value">
+          <span class="class-radio-button">{{item.label}}</span>
+        </el-radio-button>
+      </template>
     </el-radio-group>
   </el-form-item>
 </template>

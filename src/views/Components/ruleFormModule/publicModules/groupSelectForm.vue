@@ -1,94 +1,74 @@
 <template>
   <div class="group-select">
-    <el-select :model-value="modelValue[0]" :placeholder="'请选择' + attributes.label" :filterable="state.filterable[0]" @change="handleChange($event, 0)">
-      <el-option v-for="(item, index) in state.list[0]" :key="index" :label="item.label" :value="item.value" />
+    <el-select
+      :model-value="currentValue[0]"
+      :placeholder="field.placeholder || `请选择${field.label || ''}`"
+      :filterable="filterable[0]"
+      :disabled="field.disabled"
+      :loading="loading"
+      clearable
+      @change="handleChange($event, 0)"
+    >
+      <el-option v-for="item in firstOptions" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
-    <span class="separator">—</span>
-    <el-select :model-value="modelValue[1]" :placeholder="'请选择' + attributes.label" :filterable="state.filterable[1]" @change="handleChange($event, 1)">
-      <el-option v-for="(item, index) in state.list[1]" :key="index" :label="item.label" :value="item.value" />
+    <span class="separator">-</span>
+    <el-select
+      :model-value="currentValue[1]"
+      :placeholder="field.childPlaceholder || `请选择${field.label || ''}`"
+      :filterable="filterable[1]"
+      :disabled="field.disabled || !currentValue[0]"
+      :loading="loading"
+      clearable
+      @change="handleChange($event, 1)"
+    >
+      <el-option v-for="item in secondOptions" :key="item.value" :label="item.label" :value="item.value" />
     </el-select>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { submitItem } from '@/api/index.js'
-
 const props = defineProps({
   modelValue: { type: Array, default: () => ['', ''] },
-  attributes: { type: Object, default: () => ({}) }
+  field: { type: Object, default: () => ({}) },
+  options: { type: Array, default: () => [] },
+  loading: { type: Boolean, default: false },
+  loadOptions: { type: Function, default: null }
 })
 const emit = defineEmits(['update:modelValue'])
 
-const state = ref({
-  list: [[], []],
-  filterable: props.attributes.filterable || [false, false]
+const currentValue = computed(() => {
+  const value = Array.isArray(props.modelValue) ? props.modelValue : []
+  return [value[0] ?? '', value[1] ?? '']
 })
 
-const fetchData = async (index = 0, parentValue = '') => {
-  const { request, list } = props.attributes
-  if (list && list.length > 0) {
-    if (Array.isArray(list[0])) {
-      state.value.list[0] = list[0]
-      state.value.list[1] = list[1] || []
-    } else {
-      state.value.list[0] = list
-      state.value.list[1] = []
-    }
+const filterable = computed(() => props.field.filterable || [false, false])
+const firstOptions = computed(() => Array.isArray(props.options?.[0]) ? props.options[0] : props.options)
+const secondOptions = computed(() => Array.isArray(props.options?.[1]) ? props.options[1] : [])
+
+const loadChildOptions = async (value) => {
+  const request = Array.isArray(props.field.request) ? props.field.request[1] : null
+  if (!request || !request.url || !props.loadOptions || value === '') return
+  const param = request.key ? { [request.key]: value } : {}
+  await props.loadOptions(props.field, param, 1)
+}
+
+const handleChange = async (value, index) => {
+  const nextValue = [...currentValue.value]
+  nextValue[index] = value
+
+  if (index === 0) {
+    nextValue[1] = ''
+    emit('update:modelValue', nextValue)
+    await loadChildOptions(value)
     return
   }
 
-  try {
-    const reqConfig = request[index]
-    if (!reqConfig || !reqConfig.url) return
-
-    const { url, method = 'get', param = {}, label = 'name', value = 'value', key: dependKey } = reqConfig
-
-    const requestParam = { ...param }
-    if (dependKey && parentValue !== '') {
-      requestParam[dependKey] = parentValue
-    }
-    const response = await submitItem(url, method, requestParam)
-    if (response.code === 200) {
-      const data = response.data || response
-      state.value.list[index] = data.map(item => ({
-        label: item[label],
-        value: item[value]
-      }))
-      if (index === 0 && request[1]) {
-        state.value.list[1] = []
-      }
-    } else {
-      console.warn('API request failed:', response.message)
-      state.value.list[index] = []
-    }
-  } catch (error) {
-    console.error('Fetch error:', error)
-    state.value.list[index] = []
-  }
+  emit('update:modelValue', nextValue)
 }
 
-const handleChange = (value, index) => {
-  const newValue = [...(props.modelValue || ['', ''])]
-  newValue[index] = value
-  emit('update:modelValue', newValue)
-
-  if (index === 0 && props.attributes.request && props.attributes.request[1] && value !== '') {
-    newValue[index + 1] = ''
-    fetchData(1, value)
-  }
-}
-
-onMounted(async () => {
-  await fetchData(0)
-  if (props.modelValue && props.modelValue.length > 0 && props.modelValue[0]) {
-    await fetchData(1, props.modelValue[0])
-  }
-})
-
-watch(() => props.attributes, () => {
-  fetchData(0)
-}, { deep: true })
+watch(() => currentValue.value[0], (value) => {
+  if (value) loadChildOptions(value)
+}, { immediate: true })
 </script>
 
 <style scoped lang="scss">
@@ -97,7 +77,6 @@ watch(() => props.attributes, () => {
   display: flex;
   align-items: center;
   gap: 8px;
-
   .separator {
     color: #c0c4cc;
   }

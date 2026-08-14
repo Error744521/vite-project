@@ -4,7 +4,7 @@
   </svg>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -27,7 +27,7 @@ const props = defineProps({
   }
 })
 
-const formatSize = (size: string | number) => {
+const formatSize = (size) => {
   return typeof size === 'number' ? `${size}px` : size
 }
 

@@ -11,12 +11,16 @@
         <span>背景色</span>
         <el-popover placement="top-start" title="填充样式" width="220" trigger="click">
           <sketch-picker :value="style.backgroundColor" @input="(c) => $_changeColorProperty(c, 'backgroundColor')"/>
-          <div class="border-color" :style='{"backgroundColor": style.backgroundColor}' slot="reference"></div>
+          <template #reference>
+            <div class="border-color" :style='{"backgroundColor": style.backgroundColor}'></div>
+          </template>
         </el-popover>
         <span>背景渐变色</span>
         <el-popover placement="top-start" title="填充样式" width="220" trigger="click">
           <sketch-picker :value="style.gradientColor" @input="(c) => $_changeColorProperty(c, 'gradientColor')"/>
-          <div class="border-color" :style='{"backgroundColor": style.gradientColor}' slot="reference"></div>
+          <template #reference>
+            <div class="border-color" :style='{"backgroundColor": style.gradientColor}'></div>
+          </template>
         </el-popover>
       </div>
       <div class="setting-item">
@@ -32,7 +36,9 @@
         <span>线条颜色</span>
         <el-popover placement="top-start" title="填充样式" width="220" trigger="click">
           <sketch-picker :value="style.borderColor"  @input="(c) => $_changeColorProperty(c, 'borderColor')"/>
-          <div class="border-color" :style='{"backgroundColor": style.borderColor}' slot="reference"></div>
+          <template #reference>
+            <div class="border-color" :style='{"backgroundColor": style.borderColor}'></div>
+          </template>
         </el-popover>
       </div>
       <div class="setting-item">
@@ -45,7 +51,9 @@
         <span>文本颜色</span>
         <el-popover placement="top-start" title="填充样式" width="220" trigger="click">
           <sketch-picker :value="style.fontColor" @input="(c) => $_changeColorProperty(c, 'fontColor')"/>
-          <div class="border-color" :style='{"backgroundColor": style.fontColor}' slot="reference"></div>
+          <template #reference>
+            <div class="border-color" :style='{"backgroundColor": style.fontColor}'></div>
+          </template>
         </el-popover>
       </div>
       <div class="setting-item">

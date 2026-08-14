@@ -10,7 +10,7 @@
         </el-button>
       </div>
     </div>
-    <component :is="activeOperationComponent" v-if="activeOperationComponent" v-model:visible="dialogVisible" @confirm="handleDialogConfirm" />
+    <component :is="activeOperationComponent" v-if="activeOperationComponent" v-model:visible="dialogVisible" :operation="activeOperation" @confirm="handleDialogConfirm" />
 </template>
 
 <script setup>
@@ -41,10 +41,9 @@ const operationItems = [
   { key: 'Unusual', text: '异常', type: 'dialog', color: '#E6A23C', icon: 'WarnTriangleFilled' },
   { key: 'Delete', text: '删除', type: 'request', buttonType: 'warning', color: '#F56C6C', icon: 'Delete' }
 ]
-
 const handleClick = async (item) => {
   if (loadingKey.value) return
-  if (item.type === 'link') {
+  if (item.key === 'link') {
     if (item.request?.url) {
       goPage(item.request.url)
     } else {
@@ -52,15 +51,14 @@ const handleClick = async (item) => {
     }
     return
   }
-  if (item.type === 'dialog') {
+  if (item.type === 'dialog') { debugger
     activeOperation.value = item
     dialogVisible.value = true
     return
   }
   if (item.type === 'router') {
     if (item.request?.url) {
-      goPage(item.request.url)
-      emit('callback', item.key, item.request, item)
+      router.push(item.request.url)
     } else {
       ElMessage.warning('跳转地址不存在')
     }
@@ -73,7 +71,6 @@ const handleClick = async (item) => {
       const url = getDownloadUrl(res)
       if (url) {
         downloadByUrl(url, item.request?.name || item.request?.fileName)
-        emit('callback', item.key, res, item)
       } else {
         ElMessage.warning('下载链接不存在')
       }
@@ -84,11 +81,15 @@ const handleClick = async (item) => {
   }
   if (item.type === 'request') {
     loadingKey.value = item.key
+    const contains = ['Delete']
     try {
       const res = await requestAction(item.request)
-      emit('callback', item.key, res, item)
-      if (item.refresh !== false) {
-        emit('callback', 'refresh')
+      if (res.code === 200) {
+        if (contains.includes(item.key)) {
+          emit('callback', 'upload', item.key)
+        }
+      } else {
+        ElMessage.warning(res.msg)
       }
     } finally {
       loadingKey.value = ''
@@ -105,7 +106,6 @@ const requestAction = (request = {}) => {
   }
   return submitItem(url, method, param)
 }
-
 const getDownloadUrl = (res) => {
   const data = res?.data
   if (typeof data === 'string') return data
@@ -118,7 +118,7 @@ const operationList = computed(() => {
   return operationItems.reduce((list, item) => {
     const request = props.operationTable[item.key]
     if (request) {
-      list.push({ ...item, ...request, request })
+      list.push({ ...item, request })
     }
     return list
   }, [])
@@ -130,10 +130,15 @@ const activeOperationComponent = computed(() => {
 })
 
 const handleDialogConfirm = (data) => {
-  if (activeOperation.value) {
-    emit('callback', activeOperation.value.key, data, activeOperation.value)
+  const contains = ['Assignment', 'Dispatch', 'Unusual']
+  const key = activeOperation.value?.key || ''
+  if (contains.includes(key)) {
+    emit('callback', 'refresh', key)
+  } else if (key === 'Marking'){
+    emit('callback', 'upload', key)
+  } else if (key === 'Importing') {
+    return
   }
-
   handleDialogClose()
 }
 

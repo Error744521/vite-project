@@ -49,6 +49,54 @@ company_name: {
 
 3. 表单组件内部负责字段渲染，不处理页面业务。
 
+页面调用：
+
+```vue
+<rule-form
+  :fields="formFields"
+  v-model="formData"
+  @submit="handleSubmit"
+  @reset="handleReset"
+/>
+```
+
+事件规则：
+
+- `submit`：表单校验通过后抛出完整表单数据。
+- `reset`：重置完成后抛出重置后的表单数据。
+- `update:modelValue`：表单值变化时同步给父组件。
+
+不再使用旧事件：
+
+```txt
+setCallback
+```
+
+## 子组件规则
+
+字段组件统一接收：
+
+```js
+{
+  field,
+  options,
+  loading,
+  loadOptions
+}
+```
+
+字段组件只负责渲染和抛出 `update:modelValue`。
+
+不允许字段组件内部直接请求接口。
+
+不再使用旧写法：
+
+```txt
+attributes
+list
+state.list
+```
+
 ## 重置规则
 
 动态表单重置必须独立处理。
@@ -79,7 +127,16 @@ request: {
 
 不允许让未捕获 Promise 错误影响页面。
 
-3. 懒加载字段只在用户触发时请求。
+3. 静态选项统一使用 `options`。
+
+```js
+options: [
+  { label: '全部', value: '' },
+  { label: '交易', value: '1' }
+]
+```
+
+4. 懒加载字段只在用户触发时请求。
 
 不参与初始化批量请求。
 

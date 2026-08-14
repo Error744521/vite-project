@@ -1,39 +1,41 @@
 <template>
-  <el-date-picker :style="{ width: '50%' }"
-    v-if="attributes.type !== 'daterange'"
-    v-model="dateValue" 
-    :type="attributes.type" 
-    :placeholder="'请选择' + attributes.label" 
-    format="YYYY-MM-DD" 
-    value-format="YYYY-MM-DD"
-    @change="handleChange"
+  <el-date-picker
+    v-if="field.type !== 'daterange'"
+    v-model="dateValue"
+    :style="{ width: field.width || '50%' }"
+    :type="field.type || 'date'"
+    :placeholder="field.placeholder || `请选择${field.label || ''}`"
+    :disabled="field.disabled"
+    :format="field.format || 'YYYY-MM-DD'"
+    :value-format="field.valueFormat || 'YYYY-MM-DD'"
+    clearable
   />
-  <el-date-picker 
+  <el-date-picker
     v-else
-    v-model="dateValue" 
-    type="daterange" 
-    range-separator="至" 
-    start-placeholder="开始日期" 
-    end-placeholder="结束日期"
-    format="YYYY-MM-DD" 
-    value-format="YYYY-MM-DD"
-    @change="handleChange"
+    v-model="dateValue"
+    :style="{ width: field.width || '50%' }"
+    type="daterange"
+    :range-separator="field.rangeSeparator || '至'"
+    :start-placeholder="field.startPlaceholder || '开始日期'"
+    :end-placeholder="field.endPlaceholder || '结束日期'"
+    :disabled="field.disabled"
+    :format="field.format || 'YYYY-MM-DD'"
+    :value-format="field.valueFormat || 'YYYY-MM-DD'"
+    clearable
   />
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   modelValue: { type: [Date, Array, String], default: '' },
-  attributes: { type: Object, default: () => ({}) }
+  field: { type: Object, default: () => ({}) }
 })
 const emit = defineEmits(['update:modelValue'])
 
 const dateValue = computed({
   get: () => {
     if (props.modelValue === '' || props.modelValue === null || props.modelValue === undefined) {
-      return props.attributes.type === 'daterange' ? [] : ''
+      return props.field.type === 'daterange' ? [] : ''
     }
     return props.modelValue
   },
@@ -41,14 +43,4 @@ const dateValue = computed({
     emit('update:modelValue', value)
   }
 })
-
-const handleChange = (value) => {
-  emit('update:modelValue', value)
-}
 </script>
-
-<style scoped lang="scss">
-.el-date-editor--date{
-  width: 50%;
-}
-</style>

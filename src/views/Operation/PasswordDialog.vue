@@ -93,12 +93,6 @@ watch(() => props.visible, (newVal) => {
     border-bottom: 1px solid var(--el-border-color);
   }
 
-  .el-dialog__title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-  }
-
   .el-dialog__body {
     padding: 20px;
     min-height: 100px;

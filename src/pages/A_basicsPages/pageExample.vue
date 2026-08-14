@@ -14,15 +14,7 @@
             <IndexTableScreen v-model="state.sortingParams" :screenTable="state.screenTable" @callback="handleCallback"></IndexTableScreen>
           </div>
         </div>
-        <IndexTable
-          v-loading="loading"
-          class="class-table"
-          :table-data="tableData"
-          :meta="state.meta"
-          :columns="columns"
-          :params="state.params"
-          @callback="handleCallback"
-        >
+        <IndexTable v-loading="loading" class="class-table" :table-data="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleCallback">
           <template #flag="{ row }">
             <span v-if="row.flag === '1'">非交易网站</span>
             <span v-else>交易网站</span>
@@ -47,7 +39,7 @@
               </template>
             </el-popover>
           </template>
-          <template #operation="{ row }">
+          <template #operation>
             <el-button type="primary" link>详情</el-button>
             <!-- @click="detailLook(row)" -->
             <el-popover trigger="hover" placement="top">
@@ -93,14 +85,8 @@ const state = reactive({
   searchGroups: [
     { label: '', fields: ['company_name', 'credit_code', 'link_man', 'link_phone'] },
     { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
-    {
-      label: '筛选信息',
-      fields: ['org_id', 'target_type', 'area_ids', 'create_at', 'time_period']
-    },
-    {
-      label: '数据条件',
-      fields: ['inclusion_mode', 'rang_flag', 'send_flag', 'supervision', 'live_auth_type', 'live_delivery_method']
-    },
+    { label: '筛选信息', fields: ['org_id', 'target_type', 'area_ids', 'create_at', 'time_period'] },
+    { label: '数据条件', fields: ['inclusion_mode', 'rang_flag', 'send_flag', 'supervision', 'live_auth_type', 'live_delivery_method'] },
     { label: '主播类型', fields: ['live_user_cate'] },
     { label: '带货品类', fields: ['live_goods_cate'] }
   ],
@@ -181,27 +167,12 @@ const state = reactive({
 const loading = ref(false)
 const columns = ref([
   { prop: 'website_name', label: '网站名称', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
-  {
-    prop: 'website_url',
-    type: 'link',
-    label: '网站地址',
-    className: 'rowEllipsis',
-    width: 'auto',
-    minWidth: '10%',
-    showOverflowTooltip: true
-  },
+  { prop: 'website_url', type: 'link', label: '网站地址', className: 'rowEllipsis', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
   { slot: 'flag', label: '经营性质', width: 'auto', minWidth: '10%', align: 'center' },
   { slot: 'label_names', label: '数据标签', width: 'auto', minWidth: '10%' },
   { prop: 'website_licence', label: '备案号', width: 'auto', minWidth: '10%' },
   { slot: 'company_name', label: '主体名称', width: 'auto', minWidth: '10%', showOverflowTooltip: false },
-  {
-    slot: 'certificate_show_type',
-    label: '是否亮证',
-    width: 'auto',
-    minWidth: '10%',
-    showOverflowTooltip: true,
-    align: 'center'
-  },
+  { slot: 'certificate_show_type', label: '是否亮证', width: 'auto', minWidth: '10%', showOverflowTooltip: true, align: 'center' },
   { slot: 'light_flag', label: '亮照/亮承诺', width: 'auto', minWidth: '10%', align: 'center' },
   { prop: 'updated_at', type: 'date', label: '更新时间', width: 'auto', minWidth: '10%', align: 'center' },
   { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
