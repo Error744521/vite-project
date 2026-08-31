@@ -1,5 +1,6 @@
 <template>
   <el-select
+    :style="{ width: field.width || '100%' }"
     :model-value="modelValue"
     :placeholder="field.placeholder || `请选择${field.label || ''}`"
     :multiple="isMultiple"

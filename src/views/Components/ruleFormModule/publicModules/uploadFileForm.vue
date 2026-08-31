@@ -5,6 +5,7 @@
     :accept="field.accept || '.xls,.xlsx'"
     :limit="field.limit || 1"
     :disabled="field.disabled"
+    :headers="uploadHeaders"
     :on-success="handleSuccess"
     :on-remove="handleRemove"
     :file-list="fileList"
@@ -17,14 +18,21 @@
 </template>
 
 <script setup>
+import { useSystemStore } from '@/store/system.js'
+
 const props = defineProps({
   modelValue: { type: String, default: '' },
   field: { type: Object, default: () => ({}) }
 })
 const emit = defineEmits(['update:modelValue'])
+const systemStore = useSystemStore()
 
 const uploadUrl = computed(() => props.field.request?.url || '/api/upload')
 const uploadData = computed(() => props.field.request?.param || {})
+const uploadHeaders = computed(() => ({
+  Accept: 'application/json',
+  Authorization: systemStore.getToken || ''
+}))
 const fileList = ref([])
 
 const handleSuccess = (response, file) => {

@@ -1,158 +1,109 @@
 <template>
-  <div class="index-content-page">
-    <div class="module_page">
-      <searchModule v-model="state.searchModel" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset"></searchModule>
-      <div class="card module_card">
-        <div class="class-flex">
-          <div class="class-flex-left">
-            <IndexTotal :totalData="state.totalData"></IndexTotal>
-          </div>
-          <div class="class-flex-right">
-            <IndexTableOperation :operationTable="state.operationTable" @callback="handleCallback"></IndexTableOperation>
-          </div>
-          <div class="class-flex-right">
-            <IndexTableScreen v-model="state.sortingParams" :screenTable="state.screenTable" @callback="handleCallback"></IndexTableScreen>
-          </div>
+<div class="index-content-page">
+  <div class="page-header-sticky">
+    <page-header :loading="state.loading" :activeValue="0" :visibleList="state.menuArray" @handleSelect="handleSubmit" />
+  </div>
+  <div class="module_card">
+    <div class="card margin_bottom">
+      <search-form keys="pageExample" v-model="state.searchParams" :groups="state.searchGroups" @search="handleSubmit" @reset="handleReset" />
+    </div>
+    <div class="card">
+      <div class="class-flex">
+        <div class="class-flex-left">
+          <index-total :totalData="state.totalData" />
         </div>
-        <IndexTable v-loading="loading" class="class-table" :table-data="tableData" :meta="state.meta" :columns="columns" :params="state.params" @callback="handleCallback">
-          <template #flag="{ row }">
-            <span v-if="row.flag === '1'">非交易网站</span>
-            <span v-else>交易网站</span>
-          </template>
-          <template #label_names="{ row }">
-            <el-popover trigger="hover" placement="top" :disabled="row.label_names ? false : true">
-              <p>{{ row.label_names }}</p>
-              <template #reference>
-                <div class="name-wrapper oneline">
-                  <Edit class="hover icon-size" @click="getlabelTab(row)" /> {{ row.label_names }}
-                </div>
-              </template>
-            </el-popover>
-          </template>
-          <template #company_name="{ row }">
-            <el-popover trigger="hover" placement="top" :disabled="row.company_name ? false : true">
-              <p>{{ row.company_name }}</p>
-              <p>{{ row.org_name }}</p>
-              <p>{{ row.company_address }}</p>
-              <template #reference>
-                <div class="name-wrapper oneline">{{ row.company_name }}</div>
-              </template>
-            </el-popover>
-          </template>
-          <template #operation>
-            <el-button type="primary" link>详情</el-button>
-            <!-- @click="detailLook(row)" -->
-            <el-popover trigger="hover" placement="top">
-              <el-button type="primary" link size="small">转平台</el-button>
-              <!-- @click="reverseItem(row.id)" -->
-              <el-button type="primary" link size="small">异常</el-button>
-              <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
-              <el-button type="primary" link size="small">删除</el-button>
-              <!-- @click="deleteItem(row.id)" -->
-              <el-button type="primary" link size="small"></el-button>
-              <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
-              <template #reference>
-                <div class="class-more-font-style">更多>></div>
-              </template>
-            </el-popover>
-          </template>
-        </IndexTable>
+        <div class="class-flex-right">
+          <index-table-operation :operationTable="state.operationTable" @callback="handleSubmit" />
+        </div>
+        <div class="class-flex-right">
+          <index-table-screen v-model="state.sortingParams" :screenTable="state.screenTable" @callback="handleSubmit" />
+        </div>
       </div>
+      <index-table class="class-table" v-loading="state.loading" :params="state.params" :columns="state.columns" :tableData="state.tableData" :meta="state.meta"  @callback="handleSubmit">
+        <template #flag="{ row }">
+          <span v-if="row.flag === '1'">非交易网站</span>
+          <span v-else>交易网站</span>
+        </template>
+        <template #label_names="{ row }">
+          <el-popover trigger="hover" placement="top" :disabled="row.label_names ? false : true">
+            <p>{{ row.label_names }}</p>
+            <template #reference>
+              <div class="name-wrapper oneline">
+                <Edit class="hover icon-size" @click="getlabelTab(row)" /> {{ row.label_names }}
+              </div>
+            </template>
+          </el-popover>
+        </template>
+        <template #company_name="{ row }">
+          <el-popover trigger="hover" placement="top" :disabled="row.company_name ? false : true">
+            <p>{{ row.company_name }}</p>
+            <p>{{ row.org_name }}</p>
+            <p>{{ row.company_address }}</p>
+            <template #reference>
+              <div class="name-wrapper oneline">{{ row.company_name }}</div>
+            </template>
+          </el-popover>
+        </template>
+        <template #operation="{ row }">
+          <el-button  type="primary" link >详情</el-button> <!-- @click="detailLook(row)" -->
+          <el-popover trigger="hover" placement="top">
+            <el-button  type="primary" link >转平台</el-button> <!-- @click="reverseItem(row.id)" -->
+            <el-button  type="primary" link >异常</el-button> <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
+            <el-button  type="primary" link >删除</el-button> <!-- @click="deleteItem(row.id)" -->
+            <el-button type="primary" link ></el-button> <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
+            <template #reference>
+              <el-button  type="primary" link >更多>></el-button>
+            </template>
+          </el-popover>
+        </template>
+      </index-table >
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
-import searchModule from '@views/Components/searchModule/index.vue'
-import IndexTable from '@/components/business/table/index-table.vue'
 import { submitItem } from '@/api/index.js'
+import SearchForm from '@views/Components/searchModule/index.vue'
 import { useFormStore } from '@/store/formation.js'
-
 const formStore = useFormStore()
 const registerPageActions = inject('registerPageActions', null)
-const tableData = ref([])
-const defaultPageSize = 15
-const defaultMeta = () => ({
-  pagination: true,
-  total: 0,
-  page: 1,
-  pageSize: defaultPageSize
-})
+const route = useRoute()
+
 const state = reactive({
-  searchModel: {},
-  searchParams: {},
-  sortingParams: {},
-  searchGroups: [
-    { label: '', fields: ['company_name', 'credit_code', 'link_man', 'link_phone'] },
-    { label: '风险信息', fields: ['industry_id', 'company_status', 'company_type_ids', 'time_type'] },
-    { label: '筛选信息', fields: ['org_id', 'target_type', 'area_ids', 'create_at', 'time_period'] },
-    { label: '数据条件', fields: ['inclusion_mode', 'rang_flag', 'send_flag', 'supervision', 'live_auth_type', 'live_delivery_method'] },
-    { label: '主播类型', fields: ['live_user_cate'] },
-    { label: '带货品类', fields: ['live_goods_cate'] }
+  request: { url: '/v1/companies', method: 'get', param: { is_online: 1 } },
+  menuArray: [
+    { label: '在网主体库', value: '0', show: true, request: { url: '/v1/companies', method: 'get', param: { is_online: 1 } }},
+    { label: '登记主体库', value: '1', show: true, request: { url: '/v1/companies', method: 'get', param: { is_online: '' } }},
+    { label: '认领库', value: '2', show: true, request: { url: '/v1/companies/claims', method: 'get', param: {} }},
+    { label: '不能确认主体', value: '3', show: true, request: { url: '/v1/takeouts', method: 'get', param: {} }}
   ],
-  information: {
-    company_name: '342',
-    credit_code: '123',
-    platform_id: 176460,
-    takeout_category_id: [1],
-    flag: '',
-    category_id: [1, 3],
-    is_trade: '',
-    monitor_frequency_flag: 1,
-    start_time: '2025-12-26',
-    date_range: ['2025-12-12', '2025-12-26'],
-    behavior_id: [],
-    label_id: '',
-    link_address: '',
-    file_path: '',
-    image_path: ''
-  },
-  loading: false,
-  meta: defaultMeta(),
-  pageKey: 'pageExampleIndex',
-  params: {
-    pagination: true, //是否带分页
-    border: true, //是否带有纵向边框
-    stripe: true, //是否为斑马纹 table
-    fit: true, //列的宽度是否自撑开
-    showHeader: true,
-    highlightCurrentRow: true, //是否要高亮当前行
-    showOverflowTooltip: false, //是否隐藏额外内容并在单元格悬停时使用 Tooltip 显示它们
-    emptyText: '暂无数据',
-    selection: true,
-    showIndex: true,
-    expand: false,
-    operationWidth: 150
-  },
+  searchGroups: [
+    { label: '', fields: ['company_name', 'credit_code', 'scope_name', 'company_address', 'label_name', 'inclusion_mode', 'updateDate']},
+    { label: '筛选信息', fields: ['industry_id', 'org_id', 'company_status', 'capital', 'company_type_ids', 'platform_id']},
+    { label: '风险信息', fields: ['punish_flag', 'complaint_flag', 'abnormal_flag', 'credit_level', 'risk_level']}
+  ],
   totalData: {
     total: 0,
-    request: { url: '', method: 'post', param: { dataType: 3 } },
-    pageUrl: '/exceptionData?type=3'
+    show: true,
+    goPage: { url: '/exceptionData?type=3', request: { url: '', method: 'post', param: { dataType: 3 } } },
   },
   operationTable: {
-    Template: { url: '' },
-    Importing: { url: '/v1/companies/company_import', method: 'post', param: { dataType: 3 } },
-    Export: { url: '', method: 'post', param: { dataType: 3 } },
-    Assignment: { url: '', method: 'post', param: { dataType: 3 } },
-    Dispatch: { url: '', method: 'post', param: { dataType: 3 } },
-    Delete: { url: '', method: 'post', param: { dataType: 3 } },
-    Marking: { url: '', method: 'post', param: { dataType: 3 } },
+    Linking: { url: 'http://baidu.com' },
+    Template: { url: '/v1/companies/down_template', method: 'post', param: { } },
+    Importing: { url: '/v1/companies/company_import', method: 'post', param: { } },
+    Export: { url: '/v1/companies/export', method: 'post', param: { dataType: 3 } },
+    Assignment: { url: '/v1/assigns', method: 'post', param: { dataType: 3 } },
+    Dispatch: { url: '/v1/assigns', method: 'post', param: { dataType: 3 } },
+    Delete: { url: '/v1/companies', method: 'delete', param: { dataType: 3 } },
+    Marking: { url: '/v1/labels/edit', method: 'post', param: { dataType: 3 } },
     Unusual: { url: '', method: 'post', param: { dataType: 3 } },
-    NewData: { url: '', method: 'post', param: { dataType: 3 } },
+    NewData: { url: '/registerBodyEdit' },
     Screenshot: { url: '', method: 'post', param: { dataType: 3 } }
   },
   screenTable: {
-    sorting: {
-      request: { url: '', method: 'post', param: {} },
-      options: [
-        { label: '默认', value: '' },
-        { label: '正序', value: 1 },
-        { label: '倒序', value: -1 }
-      ]
-    },
-    select: {
-      request: { url: '', method: 'post', param: {} },
-      options: [
+    sorting: { request: { url: '', method: 'post', param: {} }, options: [{ label: '默认', value: '' }, { label: '正序', value: 1 }, { label: '倒序', value: -1 }]},
+    select: { request: { url: '', method: 'post', param: {} }, options: [
         { label: '默认', value: '' },
         { label: '载体数', value: 1 },
         { label: '处罚', value: 2 },
@@ -161,134 +112,168 @@ const state = reactive({
         { label: '信用', value: 5 }
       ]
     }
-  }
+  },
+  loading: false,
+  params: {
+    border: true,
+    stripe: true,
+    fit: true,
+    showHeader: true,
+    highlightCurrentRow: true,
+    showOverflowTooltip: false,
+    emptyText: '暂无数据',
+    selection: true,
+    showIndex: true,
+    expand: false,
+    operationWidth: 150
+  },
+  columns: [
+    { prop: 'website_name', label: '网站名称', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
+    { prop: 'website_url', type: 'link', label: '网站地址', className: 'rowEllipsis', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
+    { slot: 'flag', label: '经营性质', width: 'auto', minWidth: '10%', align: 'center' },
+    { slot: 'label_names', label: '数据标签', width: 'auto', minWidth: '10%' },
+    { prop: 'website_licence', label: '备案号', width: 'auto', minWidth: '10%' },
+    { slot: 'company_name', label: '主体名称', width: 'auto', minWidth: '10%', showOverflowTooltip: false },
+    { slot: 'certificate_show_type', label: '是否亮证', width: 'auto', minWidth: '10%', showOverflowTooltip: true, align: 'center' },
+    { slot: 'light_flag', label: '亮照/亮承诺', width: 'auto', minWidth: '10%', align: 'center' },
+    { prop: 'updated_at', type: 'date', label: '更新时间', width: 'auto', minWidth: '10%', align: 'center' },
+    { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
+  ],
+  tableData: [],
+  meta: {
+    pagination: true,
+    total: 0,
+    page: 1,
+    pageSize: 15
+  },
+  searchParams: {}, // 搜索条件
+  sortingParams: {}, // 排序条件
 })
+// 当前页面缓存标识，优先使用路由配置的 pageKey。
+const pageKey = computed(() => String(route.meta?.pageKey || route.name))
 
-const loading = ref(false)
-const columns = ref([
-  { prop: 'website_name', label: '网站名称', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
-  { prop: 'website_url', type: 'link', label: '网站地址', className: 'rowEllipsis', width: 'auto', minWidth: '10%', showOverflowTooltip: true },
-  { slot: 'flag', label: '经营性质', width: 'auto', minWidth: '10%', align: 'center' },
-  { slot: 'label_names', label: '数据标签', width: 'auto', minWidth: '10%' },
-  { prop: 'website_licence', label: '备案号', width: 'auto', minWidth: '10%' },
-  { slot: 'company_name', label: '主体名称', width: 'auto', minWidth: '10%', showOverflowTooltip: false },
-  { slot: 'certificate_show_type', label: '是否亮证', width: 'auto', minWidth: '10%', showOverflowTooltip: true, align: 'center' },
-  { slot: 'light_flag', label: '亮照/亮承诺', width: 'auto', minWidth: '10%', align: 'center' },
-  { prop: 'updated_at', type: 'date', label: '更新时间', width: 'auto', minWidth: '10%', align: 'center' },
-  { slot: 'operation', label: '操作', width: 'auto', minWidth: '12%', align: 'center', fixed: 'right' }
-])
+const refreshCurrent = async () => {
+  state.loading = true
+  const request = state.request
+  const searchParams = { ...state.searchParams, ...state.sortingParams, ...getPageParams, ...request.param }
 
-const getPageParams = () => ({
-  page: state.meta.page,
-  pageSize: state.meta.pageSize
-})
-const buildSearchParams = () => ({
-  ...state.searchParams,
-  ...state.sortingParams,
-  ...getPageParams()
-})
-const savePageQueryCache = () => {
-  formStore.setPageQueryCache(state.pageKey, {
-    searchParams: { ...state.searchParams },
-    sortingParams: { ...state.sortingParams },
-    meta: getPageParams()
-  })
-}
-const restorePageQueryCache = () => {
-  const cache = formStore.getPageQueryCache(state.pageKey)
-  if (!cache) return false
-  state.searchParams = { ...(cache.searchParams || {}) }
-  state.searchModel = { ...state.searchParams }
-  state.sortingParams = { ...(cache.sortingParams || {}) }
-  state.meta = { ...state.meta, ...(cache.meta || {}) }
-  return true
-}
-const setMetaByResponse = (meta = {}) => {
-  state.meta.page = meta.current_page || state.meta.page
-  state.meta.pageSize = meta.per_page || state.meta.pageSize
-  state.meta.total = meta.total || 0
-  state.totalData.total = meta.total || 0
-}
-
-const getList = () => {
-  savePageQueryCache()
-  loading.value = true
-  submitItem('/v1/websites', 'get', buildSearchParams()).then((res) => {
-    loading.value = false
+  await submitItem(request.url, request.method, searchParams).then((res) => {
+    state.loading = false
     if (res.code === 200) {
-      tableData.value = res.data
-      setMetaByResponse(res.meta)
+      state.tableData = res.data
+      const meta = res.meta || res.data.meta
+      state.meta.page = meta.current_page
+      state.meta.pageSize = meta.per_page
+      state.meta.total = meta.total || 0
+      state.totalData.total = meta.total || 0
     } else {
       state.params.emptyText = res.msg || '请求数据失败！'
     }
   })
 }
-const handleSearch = (params) => {
-  state.searchModel = { ...params }
-  state.searchParams = { ...params }
-  state.meta.page = 1
-  getList()
+// 提取当前分页参数，用于缓存和请求参数组装。
+const getPageParams = () => ({
+  page: state.meta.page,
+  pageSize: state.meta.pageSize
+})
+
+// 统一处理页面子组件回调：筛选、刷新、重置、翻页和页码大小变更。
+const handleSubmit = (actionKey, params) => {
+  const submitHandlers = {
+    menu: () => {
+      state.request = params
+      handleReset()
+    },
+    screen: (params = {}) => { /* 排序 */
+      state.sortingParams = { ...params }
+      state.meta.page = 1
+      refreshCurrent()
+    },
+    search: (params = {}) => { /* 搜索 */
+      state.searchParams = { ...params }
+      state.meta.page = 1
+      refreshCurrent()
+    },
+    update: () => { /* 更新 */
+      getList()
+    },
+    refresh: handleReset, /* 重置 */
+    page: (page) => { /* 翻页 */
+      state.meta.page = page
+      refreshCurrent()
+    },
+    size: (pageSize) => { /* 页码 */
+      state.meta.pageSize = pageSize
+      state.meta.page = 1
+      refreshCurrent()
+    }
+  }
+  savePageQueryCache()
+  submitHandlers[actionKey]?.(params)
 }
+
+// 缓存当前页面查询状态，二级页返回时可恢复筛选条件和分页。
+const savePageQueryCache = () => {
+  formStore.setPageQueryCache(pageKey.value, {
+    searchParams: { ...state.searchParams },
+    sortingParams: { ...state.sortingParams },
+    meta: getPageParams()
+  })
+}
+
+// 重置搜索条件、排序条件和分页，并清理当前页面缓存后重新请求列表。
 const handleReset = () => {
-  state.searchModel = {}
   state.searchParams = {}
   state.sortingParams = {}
   state.meta.page = 1
-  state.meta.pageSize = defaultPageSize
-  formStore.clearPageQueryCache(state.pageKey)
-  getList()
-}
-const handleCallback = (key, val) => {
-  if (key === 'screen') {
-    state.sortingParams = { ...val }
-    state.meta.page = 1
-    getList()
-    return
-  }
-  if (key === 'page' || key === 1) {
-    state.meta.page = val
-    getList()
-  }
-  if (key === 'size') {
-    state.meta.pageSize = val
-    state.meta.page = 1
-    getList()
-  }
+  state.meta.pageSize = 15
+  formStore.clearPageQueryCache(pageKey.value)
+  refreshCurrent()
 }
 
+
+// 恢复缓存条件后重新请求列表，适用于详情页修改数据后返回列表。
+const restoreAndFetch = () => {
+  restorePageQueryCache()
+  refreshCurrent()
+}
+// 恢复当前页面查询缓存，返回 true 表示命中缓存。
+const restorePageQueryCache = () => {
+  const cache = formStore.getPageQueryCache(pageKey.value)
+  if (!cache) return false
+  state.searchParams = { ...(cache.searchParams || {}) }
+  state.sortingParams = { ...(cache.sortingParams || {}) }
+  state.meta = { ...state.meta, ...(cache.meta || {}) }
+  return true
+}
+
+// 根据导航意图处理列表状态：菜单进入重置，详情返回恢复，数据变更后刷新。
 const handlePageIntent = (initial = false) => {
-  const intent = formStore.getNavigationIntent(state.pageKey)
-
-  if (intent === 'menu' || intent === 'resetRefresh') {
-    formStore.clearNavigationIntent(state.pageKey)
-    handleReset()
-    return
+  const intent = formStore.getNavigationIntent(pageKey.value)
+  const intentHandler = {
+    menu: handleReset,
+    resetRefresh: handleReset,
+    detailUpdated: restoreAndFetch,
+    refresh: refreshCurrent
   }
-
-  if (intent === 'detailUpdated') {
-    formStore.clearNavigationIntent(state.pageKey)
-    restorePageQueryCache()
-    getList()
-    return
-  }
-
-  if (intent === 'refresh') {
-    formStore.clearNavigationIntent(state.pageKey)
-    getList()
+  if (intentHandler[intent]) {
+    formStore.clearNavigationIntent(pageKey.value)
+    intentHandler[intent]()
     return
   }
 
   if (initial) {
-    restorePageQueryCache()
-    getList()
+    restoreAndFetch()
   }
 }
 
+// 写入页面导航意图并立即执行对应动作。
 const runPageIntent = (intent) => {
-  formStore.setNavigationIntent(state.pageKey, intent)
+  formStore.setNavigationIntent(pageKey.value, intent)
   handlePageIntent()
 }
 
+// 注册当前列表页可被外部触发的动作，例如菜单点击和顶部刷新。
 const registerCurrentPageActions = () => {
   registerPageActions?.({
     menu: () => runPageIntent('menu'),
@@ -297,6 +282,7 @@ const registerCurrentPageActions = () => {
   })
 }
 
+// 组件失活或卸载时清空注册动作，避免旧页面继续响应外部操作。
 const clearCurrentPageActions = () => {
   registerPageActions?.({})
 }
@@ -312,19 +298,34 @@ onActivated(() => {
 })
 
 onDeactivated(clearCurrentPageActions)
-
 onUnmounted(clearCurrentPageActions)
 </script>
 
 <style scoped lang="scss">
-.module_page {
+.index-content-page {
   height: 100%;
   overflow: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   &::-webkit-scrollbar {
     display: none;
   }
 }
-
+.page-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.module_card {
+  .margin_bottom{
+    margin-bottom: 10px;
+  }
+}
+.class-table {
+  flex: 1;
+  min-height: 0;
+}
 .refresh-button {
   display: flex;
   align-items: center;
@@ -336,17 +337,14 @@ onUnmounted(clearCurrentPageActions)
   cursor: pointer;
   transition: all 0.3s ease;
   color: #1890ff;
-
   &:hover {
     background: #e6f7ff;
     border-color: #91d5ff;
   }
-
   .refresh-icon {
     width: 16px;
     height: 16px;
   }
-
   span {
     font-size: 14px;
   }

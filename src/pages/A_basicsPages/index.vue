@@ -10,9 +10,9 @@
         <div class="main-content">
           <router-view v-if="isRouterAlive" v-slot="{ Component, route }">
             <keep-alive>
-              <component :is="Component" v-if="route.meta.keepAlive" :key="route.name" />
+              <component :is="Component" v-if="route.meta.keepAlive" :key="route.meta.pageKey || route.name" />
             </keep-alive>
-            <component :is="Component" v-if="!route.meta.keepAlive" :key="route.name" />
+            <component :is="Component" v-if="!route.meta.keepAlive" :key="route.fullPath" />
           </router-view>
         </div>
       </el-main>

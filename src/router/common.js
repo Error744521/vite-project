@@ -29,7 +29,7 @@ const router = [
     path: '/error/:id',
     name: 'error',
     component: () => import('@/pages/A_basicsPages/error.vue'),
-    meta: { keepAlive: true, requireAuth: true, name: 'error' }
+    meta: { keepAlive: false, requireAuth: false, name: 'error' }
   }
 ]
 const addRoute = () => {

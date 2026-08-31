@@ -127,7 +127,7 @@ const commandList = ref([
   { type: 2, url: '/seedSystem', show: true, name: '切换系统', icon: 'TurnOff' },
   { type: 3, url: '/queryTool', show: true, name: '常用工具', icon: 'Notification' },
   { type: 4, url: '', show: true, name: '修改密码', icon: 'Unlock' },
-  { type: 5, url: '', show: true, name: '退出登录', icon: 'SwitchButton' },
+  { type: 5, url: '/login', show: true, name: '退出登录', icon: 'SwitchButton' },
 ])
 const dialogPasswordVisible = ref(false)
 const handleCommand = (param) => {

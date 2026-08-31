@@ -67,8 +67,14 @@ export const useSystemStore = defineStore('system', {
     clearInfo() {
       this.userInfo = {}
       this.token = ''
+      this.menulist = []
+      this.subsystemlist = []
+      this.tablist = []
       removeStorage('token')
       removeStorage('userInfo')
+      removeStorage('menulist')
+      removeStorage('subsystemlist')
+      removeStorage('tablist')
     }
   }
 })

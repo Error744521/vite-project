@@ -1,6 +1,5 @@
 <template>
-  <el-upload
-    :action="uploadUrl"
+  <el-upload :action="uploadUrl"
     :data="uploadData"
     :accept="field.accept || '.jpeg,.png,.jpg'"
     :limit="field.limit || 1"

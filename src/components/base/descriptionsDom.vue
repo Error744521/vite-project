@@ -5,24 +5,13 @@
     </div>
     <div class="descriptions-body">
       <el-descriptions :column="column" :direction="direction" :size="size" :border="border" :colon="colon">
-        <el-descriptions-item
-          v-for="item in list"
-          :key="item.prop"
-          :label="item.label"
-          :span="item.span || 1"
-          label-class-name="my-label"
-          content-class-name="my-content"
-        >
+        <el-descriptions-item v-for="item in list" :key="item.prop" :label="item.label" :span="item.span || 1" label-class-name="my-label" content-class-name="my-content">
           <template #label>
-            <slot :name="`label-${item.prop}`" :row="row" :item="item">{{ item.label }}</slot>
+            <slot :name="`label-${item.prop}`" :row="row" :item="item">{{ item.label }}：</slot>
           </template>
           <template #default>
             <slot :name="item.prop" :row="row" :item="item" :value="getValue(item, row)">
-              <span
-                class="descriptions-value"
-                :class="{ 'is-clickable': item.clickable }"
-                @click="handleItemClick(item)"
-              >
+              <span class="descriptions-value" :class="{ 'is-clickable': item.clickable }" @click="handleItemClick(item)">
                 {{ getValue(item, row) }}
               </span>
             </slot>
@@ -73,13 +62,21 @@ const handleItemClick = (item) => {
     }
   }
   .descriptions-body {
+    padding: 10px 10px 0 10px;
+    :deep(table tbody tr){
+      background-color: transparent;
+    }
+    :deep(.el-descriptions__body){
+      background-color: transparent;
+    }
     :deep(.my-label) {
       width: 120px;
-      background-color: #fafafa;
+      background-color: transparent;
       color: var(--el-text-color-secondary);
     }
     :deep(.my-content) {
       max-width: 300px;
+      background-color: transparent;
       word-break: break-word;
     }
     .descriptions-value {

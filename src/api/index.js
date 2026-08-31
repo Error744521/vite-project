@@ -6,9 +6,9 @@ import router from '@/router/index.js'
 // API 请求缓存
 const requestCache = new Map()
 
-export async function submitItem (url, type, param = {}, options = {}) {
+export async function  submitItem (url, type, param = {}, options = {}) {
   const method = type || 'get'
-  const data = cleanParams(param)
+  const data = cleanParams(param, options.keepEmptyKeys || [])
   const cacheKey = generateCacheKey(url, method, data)
   if (requestCache.has(cacheKey)) {
     return Promise.resolve(requestCache.get(cacheKey))
@@ -37,7 +37,7 @@ const CODE_STATE = {
   304: { message: '缓存有效', level: 10 },
   400: { message: '请求格式不对', level: 40 },
   401: { message: '没登录', level: 100, route: '/login', clearUserInfo: true },
-  403: { message: '没权限', level: 90, route: '/error/403' },
+  403: { message: '没权限', level: 90, route: '/error/403', clearUserInfo: true },
   404: { message: '地址不存在', level: 60, route: '/error/404' },
   405: { message: '请求方法不支持', level: 40 },
   408: { message: '请求超时', level: 40 },
@@ -153,15 +153,16 @@ function generateCacheKey(url, type, param) {
  *
  * return param参数对象
  */
-function cleanParams(value) {
-  if (value === '' || value === null || value === undefined) return undefined
+function cleanParams(value, keepEmptyKeys = [], currentKey = '') {
+  if (value === '') return keepEmptyKeys.includes(currentKey) ? value : undefined
+  if (value === null || value === undefined) return undefined
 
   if (Array.isArray(value)) {
-    return value.map(item => cleanParams(item)).filter(item => item !== undefined)
+    return value.map(item => cleanParams(item, keepEmptyKeys, currentKey)).filter(item => item !== undefined)
   }
   if (Object.prototype.toString.call(value) === '[object Object]') {
     return Object.keys(value).reduce((result, key) => {
-      const item = cleanParams(value[key])
+      const item = cleanParams(value[key], keepEmptyKeys, key)
       if (item !== undefined) {
         result[key] = item
       }

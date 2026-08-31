@@ -1,51 +1,49 @@
 <template>
-<header v-if="visibleList.length > 0" class="page_header">
-  <el-menu :default-active="activeValue" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-    <el-menu-item v-for="item in visibleList" :key="item.value" :index="String(item.value)">
+<header v-if="menuList.length > 0" class="page_header">
+  <el-menu :default-active="currentActiveValue" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+    <el-menu-item v-for="item in menuList" :key="item.value" :index="String(item.value)" :disabled="loading">
       <span class="style-position">{{ item.label }}</span>
     </el-menu-item>
   </el-menu>
 </header>
 </template>
 <script setup>
-const emit = defineEmits(['callback', 'select'])
+const emit = defineEmits(['handleSelect'])
 const props = defineProps({
   loading: {
     type: Boolean,
     default: false
   },
-  handleType: {
+  activeValue: {
     type: [String, Number],
-    default: '1'
+    default: '0'
   },
-  list: {
+  visibleList: {
     type: Array,
     default: () => ([])
   }
 })
-const activeValue = ref('')
+const currentActiveValue = ref('')
 
-const visibleList = computed(() => {
-  if (!Array.isArray(props.list)) return []
-  return props.list.filter((item) => item.show !== false)
+const menuList = computed(() => {
+  if (!Array.isArray(props.visibleList)) return []
+  return props.visibleList.filter((item) => item.show !== false)
 })
 
 const setDefaultActive = () => {
-  if (visibleList.value.length === 0) return
-  activeValue.value = String(props.handleType || visibleList.value[0].value)
+  const defaultValue = props.activeValue ?? menuList.value[0]?.value ?? ''
+  currentActiveValue.value = defaultValue === '' ? '' : String(defaultValue)
 }
 
 const handleSelect = (val) => {
   if (props.loading) return
-  activeValue.value = val
-  const item = visibleList.value.find((item) => String(item.value) === val)
-  emit('select', item || val)
-  emit('callback', item || val)
+  currentActiveValue.value = val
+  const item = menuList.value.find((item) => String(item.value) === val)
+  if (!item || !item.request) return
+  emit('handleSelect', 'menu', item.request)
 }
 
-onMounted(setDefaultActive)
-
-watch(() => [props.handleType, props.list], setDefaultActive, { deep: true })
+watch(() => [props.activeValue, props.visibleList], setDefaultActive, { deep: true, immediate: true })
 </script>
 
 <style scoped lang="scss">

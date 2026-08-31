@@ -1,5 +1,5 @@
 @use 'sass:math';
-@use '@style/themes/index';
+@use '@style/themes/light';
 
 $s12: 12px;
 $s14: 14px;
@@ -44,10 +44,10 @@ $yellow-color: #fcf001;
 $yellow-light: #f8f060;
 
 $green-color: #46cb01;
-$green-dark: #419118;
+$green-dark: #67C23A;
 $green-light: #01ffa8;
-
-$cyan-color: #26b0eb;
+/*.el-button--primary.is-plain*/
+$cyan-color: #15aeff;
 $cyan-dark: #0191ab;
 $cyan-light: #01d1f6;
 

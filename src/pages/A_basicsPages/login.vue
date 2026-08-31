@@ -102,12 +102,11 @@ onMounted(() => {
   submitItem('/v1/sys', 'post', { domain_name: domain_name.host }).then(response => {
     if (response.code === 200) {
       state.loading = true
-      const res = response
       state.sysData = {
-        sys_name: response.sys_name || '网络交易智慧监管平台',
-        sys_sub: response.foot || '市场监督管理局',
-        license: response.license,
-        domain_name: response.domain_name
+        sys_name: response.data.sys_name || '网络交易智慧监管平台',
+        sys_sub: response.data.foot || '市场监督管理局',
+        license: response.data.license,
+        domain_name: response.data.domain_name
       }
       store.setSysInfo(state.sysData)
     } else {
@@ -120,7 +119,7 @@ onMounted(() => {
   })
   const env = import.meta.env
   if (env.MODE === 'development') {
-    ruleForm.value = { mobile: env.VITE_MOBILE, code: env.VITE_CODE, password: env.VITE_PASSWORD, login_type: 1, domain_name: getlocation().hostname }
+    ruleForm.value = { mobile: env.VITE_MOBILE, code: env.VITE_CODE, password: env.VITE_PASSWORD, login_type: 2, domain_name: getlocation().hostname }
   }
 
   const handleGlobalEnter = (e) => {
@@ -137,14 +136,11 @@ onMounted(() => {
         }
       }
     }
-
     if (e.key === 'Tab') {
       loginType()
     }
   }
-
   document.addEventListener('keydown', handleGlobalEnter)
-
   onUnmounted(() => {
     document.removeEventListener('keydown', handleGlobalEnter)
   })

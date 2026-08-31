@@ -171,9 +171,11 @@ defineExpose({clearSelection, clearSort, scrollTo, tableRef})
       }
     }
   }
-  :deep(.row120 .cell) {
-  }
-  :deep(.row140 .cell) {
+  :deep(.table-flex-colum .cell) {
+    display: inline-grid;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
 }
 :deep(.icon-size) {

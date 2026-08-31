@@ -1,13 +1,5 @@
 <template>
-  <dialog-dom
-    :visible="visible"
-    :title="title"
-    :loading="loading"
-    width="50%"
-    :show-footer="false"
-    @close="handleClose"
-    @update:visible="emit('update:visible', $event)"
-  >
+  <dialog-dom :visible="visible" :title="title" :loading="dialogLoading" width="50%" :show-footer="false" @close="handleClose" @update:visible="emit('update:visible', $event)">
     <template #content>
       <p class="export-tips">数据导出需要超管审核，审核通过后在导出记录下载使用</p>
       <rule-form-module ref="formRef" v-model="formModel" :fields="formFields" label-width="100px" @submit="handleSubmit" />
@@ -18,7 +10,7 @@
 <script setup>
 import DialogDom from '@/components/base/dialogDom.vue'
 import RuleFormModule from '@/views/Components/ruleFormModule/index.vue'
-import {submitItem} from "@/api/index.js";
+import { submitItem } from "@/api/index.js";
 
 const props = defineProps({
   visible: {
@@ -46,6 +38,8 @@ const formModel = ref({
   export_reason: '',
   file_path: ''
 })
+const submitLoading = ref(false)
+const dialogLoading = computed(() => props.loading || submitLoading.value)
 
 const formFields = [
   {
@@ -80,17 +74,20 @@ watch(() => props.visible, (visible) => {
 })
 
 const handleSubmit = async (data) => {
-  props.loading = true
   const { url, method, param } = props.operation && props.operation.request || {}
+  if (!url || submitLoading.value) return
+  submitLoading.value = true
   try {
     const form = { ...data, ...param }
     const res = await submitItem(url, method, form)
-    if(res.code === 200) {
-      emit('confirm', '')
+    if (res.code === 200) {
+      emit('confirm', )
       handleClose()
     }
-  } catch (error){
-
+  } catch (error) {
+    console.error('[ExportDialog] 导出请求失败', error)
+  } finally {
+    submitLoading.value = false
   }
 }
 

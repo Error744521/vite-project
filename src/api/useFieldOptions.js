@@ -24,6 +24,20 @@ export const normalizeOptions = (data, request = {}) => {
   }))
 }
 
+export const getOptionData = (response = {}, request = {}) => {
+  const data = response?.data
+  if (Array.isArray(data)) return data
+
+  const keys = Array.from(new Set([request.children, 'children', 'list', 'rows', 'records', 'items', 'data'].filter(Boolean)))
+  if (data && typeof data === 'object') {
+    const target = keys.map((key) => data[key]).find(Array.isArray)
+    if (target) return target
+  }
+
+  const target = keys.map((key) => response?.[key]).find(Array.isArray)
+  return target || []
+}
+
 export function useFieldOptions(fieldRef) {
   const loading = ref(false)
   const list = ref([])
@@ -50,8 +64,8 @@ export function useFieldOptions(fieldRef) {
 
     loading.value = true
     try {
-      const response = await submitItem(request.url, request.method || 'get', request.param || {})
-      const options = normalizeOptions(response.data || [], request)
+      const response = await submitItem(request.url, request.method || 'get', request.param || {}, { keepEmptyKeys: request.keepEmptyKeys || [] })
+      const options = normalizeOptions(getOptionData(response, request), request)
       list.value = options
       if (request.cache !== false) {
         optionCache.set(cacheKey, options)

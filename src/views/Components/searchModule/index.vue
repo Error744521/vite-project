@@ -53,7 +53,7 @@ const criteriaList = ref([])
 const onSubmit = () => {
   const params = { ...buildSearchParams(formModel.value, fields.value), page: 1, pageSize: 15 }
   emit('update:modelValue', { ...formModel.value })
-  emit('search', params)
+  emit('search', 'screen', params)
 }
 
 const onRefresh = () => {

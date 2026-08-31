@@ -88,27 +88,11 @@ watch(() => props.visible, (newVal) => {
 
 <style scoped lang="scss">
 .custom-dialog {
-  .el-dialog__header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--el-border-color);
-  }
-
   .el-dialog__body {
     padding: 20px;
     min-height: 100px;
   }
-
-  .el-dialog__footer {
-    padding: 16px 20px;
-    border-top: 1px solid var(--el-border-color);
-  }
 }
-
-.dialog-body {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

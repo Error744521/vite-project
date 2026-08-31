@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="title"
-    :width="width"
-    :top="top"
-    :modal="modal"
+  <el-dialog v-model="dialogVisible" :title="title" :width="width" :top="top" :modal="modal"
     :close-on-click-modal="closeOnClickModal"
     :close-on-press-escape="closeOnPressEscape"
     :show-close="showClose"
@@ -28,8 +23,6 @@
 </template>
 
 <script setup>
-import { computed, useSlots } from 'vue'
-
 const props = defineProps({
   title: {
     type: String,
@@ -112,9 +105,7 @@ const handleConfirm = () => {
 
 <style scoped lang="scss">
 :global(.custom-dialog .el-dialog__header) {
-  border-bottom: 1px solid var(--el-border-color);
   text-align: left;
-  padding-left: 15px;
 }
 
 :global(.custom-dialog .el-dialog__body) {
@@ -124,10 +115,8 @@ const handleConfirm = () => {
   max-height: 70vh;
   overflow: auto;
 }
-
-:global(.custom-dialog .el-dialog__footer) {
-  padding: 16px 20px;
-  border-top: 1px solid var(--el-border-color);
+:global(.custom-dialog .el-dialog__body::-webkit-scrollbar){
+  display: none;
 }
 
 .dialog-body {
@@ -139,7 +128,7 @@ const handleConfirm = () => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 10px 40px;
+  padding: 10px 60px;
   button{
     padding: 0 40px;
   }

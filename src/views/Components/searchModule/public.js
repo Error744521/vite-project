@@ -210,7 +210,7 @@ const searchFormFn = async (key) => {
   if (!isNaN(key) || key === 'Basics') {
     return ObjectArray
   }
-  const importFile = await import(`../../ComponentsPages/${key}/public.js`)
+  const importFile = await import(`../../ComponentsPages/${key}.js`)
   return importFile.default || importFile
 }
 

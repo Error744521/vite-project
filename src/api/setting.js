@@ -28,7 +28,7 @@ export function outlogin (param) {
   })
 }
 
-function encrypotion (data) {
+function encrypotion (data) { debugger
   let timestampInSeconds = Math.floor(new Date().getTime() / 1000);
   const keyStr=import.meta.env.VITE_ENCRYPT_KEY
   const key = CryptoJS.enc.Utf8.parse(keyStr)

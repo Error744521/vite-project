@@ -19,32 +19,39 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { useSystemStore } from '@/store/system.js'
 const route = useRoute()
 const router = useRouter()
+const systemStore = useSystemStore()
 const statuslist = ref([
   { type: 304, message: '缓存内容！', text: '返回', url: '/#' },
-  { type: 401, message: '请求出错！', text: '返回', url: '/#' },
-  { type: 403, message: '请求方式不对！', text: '去登陆', url: '/login' },
+  { type: 401, message: '没有请求权限！', text: '返回', url: '/#' },
+  { type: 403, message: '没有访问权限！', text: '去登陆', url: '/login' },
   { type: 404, message: '找不到内容！', text: '返回', url: '/#' },
 ])
 
 const goPage = (url) => {
   if (url === '/#') {
-    router.back(-1)
-  } else {
-    router.push({ path: url })
+    router.back()
+    return
   }
+  if (url === '/login') {
+    systemStore.clearInfo()
+    router.replace({ path: url })
+    return
+  }
+  router.push({ path: url })
 }
 
-const pageData = ref({ type: 1, message: '内容报错！', text: '返回', url: '/#' })
-onMounted(() => {
+const defaultPageData = { type: 1, message: '内容报错！', text: '返回', url: '/#' }
+const pageData = ref({ ...defaultPageData })
+
+const setPageData = () => {
   const param = Number(route.params.id) || ''
-  statuslist.value.map(item => {
-    if (item.type === param) {
-      pageData.value = item
-    }
-  })
-})
+  pageData.value = statuslist.value.find(item => item.type === param) || { ...defaultPageData }
+}
+
+watch(() => route.params.id, setPageData, { immediate: true })
 </script>
 
 <style scoped lang="scss">

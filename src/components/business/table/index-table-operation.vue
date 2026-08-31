@@ -1,11 +1,11 @@
 <template>
     <div v-if="operationList.length > 0" class="class-table-operation">
       <div v-for="item in operationList" :key="item.key">
-        <p v-if="item.type === 'upload'" class="template_flag">
+        <p v-if="item.type === 'upload'" :class="['template_flag', `operation-${item.key}`]">
           <uploadFile :itemData="item" :tipShow="false" />
         </p>
-        <el-button v-else class="template_flag" :type="item.buttonType || 'default'" plain :link="item.type === 'link'"
-                   :color="item.color" :icon="item.icon" :loading="loadingKey === item.key" :disabled="Boolean(loadingKey)" @click="handleClick(item)">
+        <el-button v-else :class="['template_flag', `operation-${item.key}`]" :type="item.buttonType || 'default'" plain :link="item.type === 'link'"
+                   :icon="item.icon" :loading="loadingKey === item.key" :disabled="Boolean(loadingKey)" @click="handleClick(item)">
           {{ item.text }}
         </el-button>
       </div>
@@ -18,6 +18,7 @@ import { ElMessage } from 'element-plus'
 import OperationComponents from '@views/Operation'
 import { submitItem } from '@/api/index.js'
 import { downloadByUrl, goPage } from '@/utils/tools.js'
+import { operationItems } from './operationConfig.js'
 const props = defineProps({
   operationTable: {
     type: Object,
@@ -29,18 +30,6 @@ const dialogVisible = ref(false)
 const activeOperation = ref(null)
 const loadingKey = ref('')
 
-const operationItems = [
-  { key: 'Linking', text: '链接', type: 'link', color: '#409EFF', icon: '' },
-  { key: 'Template', text: '下载模板', type: 'download', color: '#409EFF', icon: '' },
-  { key: 'Importing', text: '导入', type: 'upload', color: '#409EFF', icon: 'UploadFilled', accept: '.xls,.xlsx', limit: 1 },
-  { key: 'Export', text: '导出', type: 'dialog', color: '#909399', icon: 'DocumentCopy' },
-  { key: 'NewData', text: '新增', type: 'router', color: '#15b48f', icon: 'DocumentAdd' },
-  { key: 'Assignment', text: '指派', type: 'dialog', color: '#0db1f6', icon: 'Pointer' },
-  { key: 'Dispatch', text: '分派', type: 'dialog', color: '#11b6b6', icon: 'Guide' },
-  { key: 'Marking', text: '打标', type: 'dialog', color: '#76b21a', icon: 'CopyDocument' },
-  { key: 'Unusual', text: '异常', type: 'dialog', color: '#E6A23C', icon: 'WarnTriangleFilled' },
-  { key: 'Delete', text: '删除', type: 'request', buttonType: 'warning', color: '#F56C6C', icon: 'Delete' }
-]
 const handleClick = async (item) => {
   if (loadingKey.value) return
   if (item.key === 'link') {
@@ -51,7 +40,7 @@ const handleClick = async (item) => {
     }
     return
   }
-  if (item.type === 'dialog') { debugger
+  if (item.type === 'dialog') {
     activeOperation.value = item
     dialogVisible.value = true
     return
@@ -149,6 +138,21 @@ const handleDialogClose = () => {
 </script>
 
 <style scoped lang="scss">
+@mixin operation-button-theme($color) {
+  --el-button-text-color: #{$color};
+  --el-button-border-color: #{rgba($color, 0.5)};
+  --el-button-bg-color: #{rgba($color, 0.1)};
+  --el-button-hover-text-color: #{$white};
+  --el-button-hover-border-color: #{$color};
+  --el-button-hover-bg-color: #{$color};
+  --el-button-active-text-color: #{$white};
+  --el-button-active-border-color: #{$color};
+  --el-button-active-bg-color: #{$color};
+  --el-button-disabled-text-color: #{$color};
+  --el-button-disabled-border-color: #{rgba($color, 0.4)};
+  --el-button-disabled-bg-color: transparent;
+}
+
 .class-table-operation {
   @include flexwrap(nowrap);
   p {
@@ -161,6 +165,30 @@ const handleDialogClose = () => {
     margin-right: 10px;
     font-size: 14px;
     line-height: 30px;
+  }
+  .operation-Linking,
+  .operation-Template,
+  .operation-Importing {
+    @include operation-button-theme($mainPrimary);
+  }
+  .operation-Export {
+    @include operation-button-theme($mainInfo);
+  }
+  .operation-NewData,
+  .operation-Marking {
+    @include operation-button-theme($green-dark);
+  }
+  .operation-Assignment {
+    @include operation-button-theme($cyan-light);
+  }
+  .operation-Dispatch {
+    @include operation-button-theme($cyan-dark);
+  }
+  .operation-Unusual {
+    @include operation-button-theme($mainWarning);
+  }
+  .operation-Delete {
+    @include operation-button-theme($mainDanger);
   }
 }
 </style>

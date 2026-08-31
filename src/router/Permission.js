@@ -61,13 +61,13 @@ const convertPathToCamelCase = (path) => {
     fastPart = parts.pop()
     const lastPart = lastName.charAt(0).toUpperCase() + lastName.slice(1)
     if (lastName === 'index') {
-      subName = { path: `/${fastPart}${lastPart}`, name: `${fastPart}${lastPart}` }
+      subName = { path: `/${fastPart}`, name: `${fastPart}${lastPart}` }
     } else {
-      subName = { path: `/${fastPart}${lastPart}/:id?/:type?`, name: `${fastPart}${lastPart}` }
-      console.log(subName)
+      subName = { path: `/${fastPart}/${lastPart}/:id?/:type?`, name: `${fastPart}${lastPart}` }
     }
   }
   subName.meta = createRouteMeta({ routeName: subName.name, lastName, fastPart })
+  console.log(subName)
   return subName
 }
 

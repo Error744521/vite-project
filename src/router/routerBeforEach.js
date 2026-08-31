@@ -4,6 +4,7 @@ import { useSystemStore } from '@/store/system.js'
 router.beforeEach((to, from, next) => {
   const store = useSystemStore()
   const token = store.getToken || ''
+  const allowAnonymous = to.matched.some((record) => record.meta.requireAuth === false)
   const requireAuth = to.matched.some((record) => record.meta.requireAuth)
 
   if (to.path === '/login' && token) {
@@ -11,7 +12,7 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (!requireAuth) {
+  if (allowAnonymous || !requireAuth) {
     next()
     return
   }
