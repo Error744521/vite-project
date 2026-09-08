@@ -98,6 +98,7 @@ const descriptionList = computed(() => [
           <el-tag v-for="tag in tagList" :key="tag.label" :class="['register-body-row__tag', tag.className]" effect="light" size="small">
             {{ tag.label }} {{ tag.value }}
           </el-tag>
+          <p class="class-row-tips"><span>{{getValue('org_name')}}</span></p>
         </div>
         <div v-if="labelList.length > 0" class="register-body-row__labels">
           <el-link v-for="label in labelList" :key="label" type="primary" underline="never">{{ label }}</el-link>
@@ -122,6 +123,13 @@ const descriptionList = computed(() => [
 </template>
 
 <style scoped lang="scss">
+.class-row-tips{
+  position: absolute;
+  right: 10px;
+  top: 2px;
+  font-size: $s12;
+  color: $mainPrimary;
+}
 .register-body-row {
   width: 100%;
   min-height: 120px;

@@ -40,8 +40,10 @@ const formModel = ref({
 })
 
 const dialogLoading = computed(() => props.loading || submitLoading.value)
+const operationParam = computed(() => props.operation?.request?.param || {})
+const targetType = computed(() => operationParam.value.target_type || 3)
 
-const formFields = [
+const formFields = computed(() => [
   {
     component: 'checkboxGroupForm',
     key: 'system_label_ids',
@@ -51,7 +53,7 @@ const formFields = [
     request: {
       url: '/v1/labels/info',
       method: 'post',
-      param: { common_flag: 3, target_id: 0, target_type: props.operation.request.param },
+      param: { common_flag: 3, target_id: 0, target_type: targetType.value },
       label: 'label_name',
       value: 'id'
     }
@@ -65,7 +67,7 @@ const formFields = [
     request: {
       url: '/v1/labels/info',
       method: 'post',
-      param: { common_flag: 4, target_id: 0, target_type: 3 },
+      param: { common_flag: 4, target_id: 0, target_type: targetType.value },
       label: 'label_name',
       value: 'id'
     }
@@ -79,7 +81,7 @@ const formFields = [
     request: {
       url: '/v1/labels/info',
       method: 'post',
-      param: { common_flag: 1, target_id: 0, target_type: 3 },
+      param: { common_flag: 1, target_id: 0, target_type: targetType.value },
       label: 'label_name',
       value: 'id'
     }
@@ -92,7 +94,7 @@ const formFields = [
     placeholder: '请输入标签，如多个标签请用“空格”分割',
     width: '100%'
   }
-]
+])
 
 watch(() => props.visible, (visible) => {
   if (visible) return

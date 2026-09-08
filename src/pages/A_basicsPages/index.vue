@@ -75,14 +75,14 @@ onMounted(() => {
   width: auto;
   margin: 0;
   height: calc(100vh - 140px);
-  padding: 15px 20px 20px 20px;
+  padding: 15px 10px 15px 15px;
   transition: height 0.5s;
 }
 .el-main {
   flex: 1;
   height: calc(100vh - 135px);
   margin: 0;
-  padding: 10px 20px 20px 0;
+  padding: 10px 15px 15px 0;
   position: relative;
   .main-content {
     height: calc(100% - 60px);

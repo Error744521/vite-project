@@ -1,5 +1,5 @@
 // src/utils/theme.js
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 // 预设主题配置
 const presetThemes = {
@@ -90,38 +90,39 @@ class ThemeManager {
     this.calculateDerivedColors(this.customPrimaryColor.value)
   }
 
-  // 计算衍生颜色（简化版，实际项目中可使用色彩库）
+  // 计算 Element Plus 主色衍生变量，比例保持与默认主题一致。
   calculateDerivedColors(primaryColor) {
     const root = document.documentElement
 
-    // 这里需要将十六进制颜色转换为 HSL，然后计算衍生颜色
-    // 简化实现：直接设置一些常用的衍生颜色变量
-    root.style.setProperty('--el-color-primary-light-3', this.lighten(primaryColor, 20))
-    root.style.setProperty('--el-color-primary-light-5', this.lighten(primaryColor, 40))
-    root.style.setProperty('--el-color-primary-light-7', this.lighten(primaryColor, 60))
-    root.style.setProperty('--el-color-primary-light-8', this.lighten(primaryColor, 70))
-    root.style.setProperty('--el-color-primary-light-9', this.lighten(primaryColor, 80))
-    root.style.setProperty('--el-color-primary-dark-2', this.darken(primaryColor, 10))
+    root.style.setProperty('--el-color-primary-light-3', this.mix(primaryColor, '#ffffff', 30))
+    root.style.setProperty('--el-color-primary-light-5', this.mix(primaryColor, '#ffffff', 50))
+    root.style.setProperty('--el-color-primary-light-7', this.mix(primaryColor, '#ffffff', 70))
+    root.style.setProperty('--el-color-primary-light-8', this.mix(primaryColor, '#ffffff', 80))
+    root.style.setProperty('--el-color-primary-light-9', this.mix(primaryColor, '#ffffff', 90))
+    root.style.setProperty('--el-color-primary-dark-2', this.mix(primaryColor, '#000000', 20))
   }
 
-  // 颜色变亮
-  lighten(color, percent) {
-    const num = parseInt(color.replace('#', ''), 16)
-    const amt = Math.round(2.55 * percent)
-    const R = Math.min(255, (num >> 16) + amt)
-    const G = Math.min(255, ((num >> 8) & 0x00ff) + amt)
-    const B = Math.min(255, (num & 0x0000ff) + amt)
-    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`
+  mix(color, targetColor, percent) {
+    const colorRgb = this.hexToRgb(color)
+    const targetRgb = this.hexToRgb(targetColor)
+    const weight = percent / 100
+    const result = colorRgb.map((value, index) => {
+      return Math.round(value * (1 - weight) + targetRgb[index] * weight)
+    })
+    return this.rgbToHex(result)
   }
 
-  // 颜色变暗
-  darken(color, percent) {
-    const num = parseInt(color.replace('#', ''), 16)
-    const amt = Math.round(2.55 * percent)
-    const R = Math.max(0, (num >> 16) - amt)
-    const G = Math.max(0, ((num >> 8) & 0x00ff) - amt)
-    const B = Math.max(0, (num & 0x0000ff) - amt)
-    return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`
+  hexToRgb(color) {
+    const hex = color.replace('#', '')
+    const normalizedHex = hex.length === 3
+      ? hex.split('').map((item) => item + item).join('')
+      : hex
+    const num = parseInt(normalizedHex, 16)
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255]
+  }
+
+  rgbToHex(rgb) {
+    return `#${rgb.map((value) => value.toString(16).padStart(2, '0')).join('')}`
   }
 }
 

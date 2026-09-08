@@ -1,15 +1,13 @@
 /* search Module styles */
 @use "@style/_variable.scss";
-.class-search{
-  padding: 20px;
-  .flexForm .el-form-item__content{
-    justify-content: right;
-  }
-}
 .class-search {
+  padding: 10px 15px 5px;
   background: variable.$white;
   border-radius: 0 0 5px 5px;
   position: relative;
+  .flexForm .el-form-item__content{
+    justify-content: right;
+  }
   .iconScreening {
     width: 20px;
     height: 30px;

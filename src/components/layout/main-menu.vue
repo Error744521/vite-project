@@ -112,9 +112,7 @@ $menuWide: 260px;
   position: relative;
   :deep(.el-menu) {
     border: none !important;
-    .el-sub-menu__title,
-    .el-menu-item-group,
-    .el-menu-item {
+    .el-sub-menu__title, .el-menu-item-group, .el-menu-item {
       .el-icon {
         font-size: $s18 !important;
         color: $black-color;
@@ -129,14 +127,12 @@ $menuWide: 260px;
         font-weight: bold !important;
       }
     }
-    .el-menu-item,
-    .el-menu-item-group__title {
+    .el-menu-item, .el-menu-item-group__title {
       font-size: $s16 !important;
     }
     .el-menu-item.is-active {
       background: $blue-light;
-      .el-icon,
-      span {
+      .el-icon, span {
         color: $white;
       }
     }

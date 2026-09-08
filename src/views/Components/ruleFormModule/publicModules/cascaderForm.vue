@@ -65,10 +65,35 @@ const getLazyParam = (node) => {
   return { [key]: node.value }
 }
 
+const getOptionRawValue = (item, key) => {
+  if (!key) return undefined
+  return item.raw?.[key] ?? item[key]
+}
+
+const getBooleanValue = (value) => {
+  if (typeof value === 'boolean') return value
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
+}
+
+const getLevelLeaf = (level) => {
+  const booleanValue = getBooleanValue(level)
+  if (booleanValue !== undefined) return booleanValue
+
+  const numberValue = Number(level)
+  if (Number.isFinite(numberValue)) {
+    return numberValue <= (props.field.leafLevel || 2)
+  }
+  return undefined
+}
+
 const getLazyLeaf = (item, node) => {
   if (item.leaf !== undefined) return item.leaf
   if (item.raw?.leaf !== undefined) return item.raw.leaf
   if (item.raw?.is_leaf !== undefined) return item.raw.is_leaf
+  const levelLeaf = getLevelLeaf(getOptionRawValue(item, props.field.request?.level))
+  if (levelLeaf !== undefined) return levelLeaf
   return node.level >= (props.field.leafLevel || 2)
 }
 

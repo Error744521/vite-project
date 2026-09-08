@@ -66,4 +66,7 @@ watch(() => [props.activeValue, props.visibleList], setDefaultActive, { deep: tr
     top: 6px;
   }
 }
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover,.el-menu--horizontal .el-menu-item:not(.is-disabled):focus {
+  background-color: transparent;
+}
 </style>

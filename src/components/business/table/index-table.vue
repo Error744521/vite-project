@@ -176,6 +176,11 @@ defineExpose({clearSelection, clearSort, scrollTo, tableRef})
     align-items: center;
     justify-content: center;
     gap: 10px;
+    button{
+      margin: 0 0 10px 0;
+      width: 100px;
+      overflow: hidden;
+    }
   }
 }
 :deep(.icon-size) {

@@ -23,13 +23,12 @@
         <template #registerBodyRow="{ row, index }">
           <RegisterBodyRow :row="row" :index="index" />
         </template>
-        <template #operation>
-          <el-button type="primary">详情</el-button> <!-- @click="detailLook(row)" -->
-          <el-popover trigger="hover" placement="left">
-            <el-button type="primary" link >转平台</el-button><br/> <!-- @click="reverseItem(row.id)" -->
-            <el-button type="primary" link >异常</el-button><br/> <!-- @click="setItemBrank(row.id, row.unusual_flag)" -->
-            <el-button type="primary" link >删除</el-button><br/> <!-- @click="deleteItem(row.id)" -->
-            <el-button type="primary" link ></el-button> <!-- {{ row === 0 ? '收藏' : '已收藏' }} @click="setitemcollect(row.id, row.collect_flag)" -->
+        <template #operation="{row}">
+          <el-button type="primary" @click="goDetailPage(`/registerBody/Detail/${row.id}/0`)">详情</el-button> <!-- @click="detailLook(row)" -->
+          <el-popover trigger="click" placement="left" width="80px" popper-class="popper-class-operation-customization">
+            <el-button link type="primary" @click="setUnusualItem(row.id, row.unusual_flag)">异常</el-button><br/> <!-- -->
+            <el-button link type="primary" @click="setDeleteItem(row.id)">删除</el-button><br/> <!--  -->
+            <el-button link type="primary" @click="setCollectItem(row.id, row.collect_flag)">{{ row.collect_flag === 0 ? '收藏' : '已收藏' }}</el-button>
             <template #reference>
               <el-button type="primary" plain>更多>></el-button>
             </template>
@@ -43,13 +42,15 @@
 
 <script setup>
 import { submitItem } from '@/api/index.js'
+import { useRouter, useRoute } from 'vue-router'
 import { useFormStore } from '@/store/formation.js'
 import SearchForm from '@views/Components/searchModule/index.vue'
-import RegisterBodyRow from '@/views/ComponentsPages/registerBodyRow.vue'
+import RegisterBodyRow from '@views/ComponentsPages/registerBody/registerBodyRow.vue'
 
 const registerPageActions = inject('registerPageActions', null)
 const formStore = useFormStore()
 const route = useRoute()
+const router = useRouter()
 const state = reactive({
   request: { url: '/v1/companies', method: 'get', param: { is_online: 1 } },
   menuArray: [
@@ -78,7 +79,7 @@ const state = reactive({
     Delete: { url: '/v1/companies', method: 'delete', param: { dataType: 3 } },
     Marking: { url: '/v1/labels/edit', method: 'post', param: { dataType: 3 } },
     Unusual: { url: '', method: 'post', param: { dataType: 3 } },
-    NewData: { url: '/registerBodyEdit' },
+    NewData: { url: '/registerBody/Edit' },
     Screenshot: { url: '', method: 'post', param: { dataType: 3 } }
   },
   screenTable: {
@@ -193,6 +194,9 @@ const savePageQueryCache = () => {
   })
 }
 
+const goDetailPage = (url) => {
+  router.push({ path: url })
+}
 // 重置搜索条件、排序条件和分页，并清理当前页面缓存后重新请求列表。
 const handleReset = () => {
   state.searchParams = {}

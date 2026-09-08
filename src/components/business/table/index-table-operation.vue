@@ -15,6 +15,7 @@
 
 <script setup>
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 import OperationComponents from '@views/Operation'
 import { submitItem } from '@/api/index.js'
 import { downloadByUrl, goPage } from '@/utils/tools.js'
@@ -29,10 +30,11 @@ const emit = defineEmits(['callback'])
 const dialogVisible = ref(false)
 const activeOperation = ref(null)
 const loadingKey = ref('')
+const router = useRouter()
 
 const handleClick = async (item) => {
   if (loadingKey.value) return
-  if (item.key === 'link') {
+  if (item.type === 'link') {
     if (item.request?.url) {
       goPage(item.request.url)
     } else {
