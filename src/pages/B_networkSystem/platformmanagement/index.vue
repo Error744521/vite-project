@@ -4,7 +4,7 @@
       <page-header :loading="state.loading" :activeValue="0" :visibleList="state.menuArray" @handleSelect="handleSubmit" />
     </div>
     <div class="module_page">
-      <searchModule keys="pageExample" v-model="state.searchParams" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset"></searchModule>
+      <searchModule v-model="state.searchParams" :groups="state.searchGroups" @search="handleSearch" @reset="handleReset"></searchModule>
       <div class="card module_card">
         <div class="class-flex">
           <div class="class-flex-left">
@@ -84,10 +84,10 @@ const defaultMeta = () => ({
 })
 
 const state = reactive({
-  request: { url: '/v1/companies', method: 'get', param: { flag: 1 } },
+  request: { url: '/v1/companies', method: 'get', param: { rang_flag: 1 } },
   menuArray: [
-    { label: '辖区内平台', value: 0, show: true, request: { url: '/v1/websites', method: 'get', param: { flag: 1 } }},
-    { label: '辖区外平台', value: 1, show: true, request: { url: '/v1/websites', method: 'get', param: { flag: 3 } }},
+    { label: '辖区内平台', value: 0, show: true, request: { url: '/v1/websites', method: 'get', param: { rang_flag: 1 } }},
+    { label: '辖区外平台', value: 1, show: true, request: { url: '/v1/websites', method: 'get', param: { rang_flag: 2 } }},
   ],
   searchParams: {},
   searchGroups: [
@@ -329,5 +329,4 @@ onDeactivated(clearCurrentPageActions)
 onUnmounted(clearCurrentPageActions)
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss">.module_page { height: 100%; overflow: auto; &::-webkit-scrollbar { display: none; } } .refresh-button { display: flex; align-items: center; gap: 8px; padding: 5px 16px; background: #f0f9ff; border: 1px solid #d6ecff; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; color: #1890ff; &:hover { background: #e6f7ff; border-color: #91d5ff; } .refresh-icon { width: 16px; height: 16px; } span { font-size: 14px; } }</style>

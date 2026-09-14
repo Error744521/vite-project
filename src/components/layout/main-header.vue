@@ -173,12 +173,12 @@ onUnmounted(() => {
   min-width: 0;
   box-sizing: border-box;
   position: relative;
-  min-height: 70px;
-  height: 135px;
+  min-height: 60px;
+  height: 120px;
 }
 .index-header-centent{
-  height: 70px;
-  line-height: 70px;
+  height: 60px;
+  line-height: 60px;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -188,14 +188,14 @@ onUnmounted(() => {
     flex: 1;
     display: flex;
     flex-wrap: nowrap;
-    height: 50px;
-    line-height: 50px;
+    height: 45px;
+    line-height: 45px;
     p.header-login {
-      width: 55px;
+      width: 50px;
       img {
         position: relative;
         width: auto;
-        height: 55px;
+        height: 50px;
         vertical-align: center;
       }
     }
@@ -203,7 +203,7 @@ onUnmounted(() => {
       position: relative;
       top: 8px;
       margin-left: 20px;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: bold;
       color: $white;
       letter-spacing: 3px;
@@ -214,11 +214,11 @@ onUnmounted(() => {
     display: flex;
     flex-wrap: nowrap;
     justify-content: right;
-    margin-top: 15px;
+    margin-top: 12px;
     height: 40px;
     line-height: 40px;
     .el-dropdown {
-      font-size: $s20;
+      font-size: $s18;
     }
     .index-header-line {
       height: 40px;
@@ -229,16 +229,16 @@ onUnmounted(() => {
         cursor: pointer;
         span {
           color: $white;
-          font-size: $s20;
+          font-size: $s18;
         }
         i {
           position: relative;
           color: $white;
-          font-size: $s24;
+          font-size: $s20;
         }
       }
       p.fontSize i {
-        font-size: 28px;
+        font-size: 24px;
       }
     }
     .index-header-title {
@@ -266,7 +266,7 @@ onUnmounted(() => {
         span {
           position: relative;
           color: $white;
-          font-size: $s20;
+          font-size: $s18;
         }
       }
     }
@@ -277,15 +277,15 @@ onUnmounted(() => {
   display: flex;
   flex-wrap: nowrap;
   .index-header-chiltab {
-    margin-top: 5px;
-    width: 40px;
-    height: 40px;
+    margin-top: 2px;
+    width: 36px;
+    height: 36px;
     text-align: right;
     position: relative;
     right: -5px;
     p.chiltab_icon {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -353,8 +353,8 @@ onUnmounted(() => {
       height: calc(50vh - 70px);
       overflow: auto;
       li {
-        height: 50px;
-        line-height: 50px;
+        height: 40px;
+        line-height: 40px;
         text-align: left;
         padding: 0 15px;
         p {
@@ -394,8 +394,8 @@ onUnmounted(() => {
     position: relative;
     display: flex;
     flex-wrap: nowrap;
-    height: 45px;
-    line-height: 45px;
+    height: 40px;
+    line-height: 40px;
     .item-tab-select {
       margin-top: 5px;
       height: 40px;

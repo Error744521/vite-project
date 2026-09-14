@@ -5,7 +5,7 @@
   </div>
   <div class="module_card">
     <div class="card margin_bottom">
-      <search-form keys="pageExample" v-model="state.searchParams" :groups="state.searchGroups" @search="handleSubmit" @reset="handleReset" />
+      <search-form keys="registerBody" v-model="state.searchParams" :groups="state.searchGroups" @search="handleSubmit" @reset="handleReset" />
     </div>
     <div class="card">
       <div class="class-flex">
@@ -278,51 +278,9 @@ onUnmounted(clearCurrentPageActions)
 </script>
 
 <style scoped lang="scss">
-.index-content-page {
-  height: 100%;
-  overflow: auto;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-.page-header-sticky {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
 .module_card {
   .margin_bottom{
     margin-bottom: 10px;
-  }
-}
-.class-table {
-  flex: 1;
-  min-height: 0;
-}
-.refresh-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 16px;
-  background: #f0f9ff;
-  border: 1px solid #d6ecff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: #1890ff;
-  &:hover {
-    background: #e6f7ff;
-    border-color: #91d5ff;
-  }
-  .refresh-icon {
-    width: 16px;
-    height: 16px;
-  }
-  span {
-    font-size: 14px;
   }
 }
 </style>

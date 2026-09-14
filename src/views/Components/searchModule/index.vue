@@ -8,7 +8,7 @@
         <p class="formFlex-label" v-if="group.label">{{ group.label }}：</p>
         <div class="formFlex-list" v-if="group.fields && group.fields.length > 0">
           <p class="p-line" v-for="field in group.fields" :key="field.key">
-            <component :is="getComponent(field.component)" v-model="formModel[field.key]" :field="field" :options="optionsMap[field.key] || []" :loading="loadingMap[field.key] || false" :load-options="loadOptions" @change="handleFieldChange(field, $event)"/>
+            <component :is="getComponent(field.component)" v-model="formModel[field.key]" :field="field" :options="optionsMap[field.key] || []" :loading="loadingMap[field.key] || false" :load-options="loadLazyOptions" @change="handleFieldChange(field, $event)"/>
           </p>
         </div>
       </div>
@@ -82,18 +82,25 @@ const loadFormFields = async () => {
   updateCriteria()
 }
 
-const loadOptions = async (field, extraParam = {}) => {
+const requestOptions = async (field, extraParam = {}) => {
   loadingMap.value[field.key] = true
   try {
-    const options = await loadFieldOptions(field, extraParam)
-    optionsMap.value[field.key] = options
-    return options
+    return await loadFieldOptions(field, extraParam)
   } catch {
-    optionsMap.value[field.key] = []
     return []
   } finally {
     loadingMap.value[field.key] = false
   }
+}
+
+const loadOptions = async (field, extraParam = {}) => {
+  const options = await requestOptions(field, extraParam)
+  optionsMap.value[field.key] = options
+  return options
+}
+
+const loadLazyOptions = (field, extraParam = {}) => {
+  return requestOptions(field, extraParam)
 }
 
 const loadAllOptions = async () => {

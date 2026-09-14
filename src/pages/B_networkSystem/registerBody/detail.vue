@@ -1,5 +1,5 @@
 <template>
-  <div class="index-content-page">
+  <div class="index-detail-page">
     <div class="page-header-sticky">
       <page-secondary-header title="主体详情" :sub-title="subTitle" />
     </div>
@@ -27,7 +27,7 @@ const route = useRoute()
 const detailId = computed(() => route.params.id)
 const subTitle = computed(() => route.params.id ? `主体ID：${route.params.id}` : '主体信息')
 
-const componentName = ref('companyContent')
+const componentName = ref('knowledgeProperty')
 const itemData = ref({})
 
 const activeComponent = computed(() => components[componentName.value] || null)
@@ -67,13 +67,7 @@ onMounted(getDetail)
 </script>
 
 <style scoped lang="scss">
-.index-content-page {
-  padding: 0 5px;
-  overflow: auto;
-  background-color: $white;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+.index-detail-page {
   .data-detail-header{
     margin: 20px 10px;
   }
@@ -83,11 +77,5 @@ onMounted(getDetail)
   .data-detail-content{
     margin: 10px;
   }
-}
-.page-header-sticky {
-  padding-top: 5px;
-  position: sticky;
-  top: 0;
-  z-index: 20;
 }
 </style>

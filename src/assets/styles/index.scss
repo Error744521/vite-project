@@ -67,12 +67,42 @@ input[type='password'], input[type='text'], textarea, .el-input__inner {
 
 .index-content-page {
   position: relative;
-  display: block;
   width: auto;
-  border-radius: 5px;
   height: 100%;
-  background-color: $white-light;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
+  background-color: $white-light;
+  border-radius: 5px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  .page-header-sticky{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .class-table {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.index-detail-page {
+  height: 100%;
+  padding: 0 5px;
+  overflow: auto;
+  background-color: $white;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  .page-header-sticky {
+    padding-top: 5px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
 }
 
 .ellipsis {

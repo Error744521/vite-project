@@ -4,20 +4,20 @@
 
 项目搜索功能统一使用 `src/views/Components/searchModule/index.vue`。
 
-页面只声明搜索分组和字段 key，字段详情统一放到字段池 `pageExample.js` 中。以后新增页面时，根据 `src/pages` 下的模块目录，在 `src/views/ComponentsPages` 下生成对应的 `pageExample.js` 字段配置文件。
+页面只声明搜索分组和字段 key，字段详情统一放到字段池 `registerBody.js` 中。以后新增页面时，根据 `src/pages` 下的模块目录，在 `src/views/ComponentsPages` 下生成对应的 `registerBody.js` 字段配置文件。
 
 ## 目录规则
 
 公共搜索字段：
 
 ```txt
-src/views/Components/searchModule/pageExample.js
+src/views/Components/searchModule/registerBody.js
 ```
 
 业务模块搜索字段：
 
 ```txt
-src/views/ComponentsPages/{moduleKey}/pageExample.js
+src/views/ComponentsPages/{moduleKey}/registerBody.js
 ```
 
 `moduleKey` 默认取 `src/pages` 下一级业务目录名。
@@ -26,7 +26,7 @@ src/views/ComponentsPages/{moduleKey}/pageExample.js
 
 ```txt
 src/pages/B_networkSystem/registerBody/index.vue
-src/views/ComponentsPages/B_networkSystem/pageExample.js
+src/views/ComponentsPages/B_networkSystem/registerBody.js
 ```
 
 页面使用：
@@ -458,7 +458,7 @@ C_exampleSystem
 2. 生成字段池。
 
 ```txt
-src/views/ComponentsPages/C_exampleSystem/pageExample.js
+src/views/ComponentsPages/C_exampleSystem/registerBody.js
 ```
 
 3. 在页面中声明搜索组件。

@@ -12,8 +12,9 @@ const props = defineProps({
     default: () => ({})
   }
 })
+const emit = defineEmits(['edit', 'delete'])
 
-const activeTab = ref('')
+const activeTab = ref(0)
 const tableLoading = ref(false)
 const licenseTabs = computed(() => props.itemData.licence_nums || [])
 const tableParams = {
@@ -33,49 +34,62 @@ const tableMeta = {
   total: 0
 }
 const tableData = ref([])
-const columns = [
-  {
-    prop: 'licence_name',
-    label: '许可名称',
-    minWidth: '160',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'licence_code',
-    label: '许可证号',
-    minWidth: '160',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'licence_scope',
-    label: '许可内容',
-    minWidth: '220',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'valid_date',
-    label: '有效期',
-    minWidth: '160',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'issue_org',
-    label: '发证机关',
-    minWidth: '160',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'status',
-    label: '状态',
-    minWidth: '100'
-  }
-]
+const operationColumn = {
+  slot: 'operation',
+  prop: 'operation',
+  label: '操作',
+  width: 120,
+  align: 'center',
+  fixed: 'right'
+}
+const columnMap = {
+  0: [
+    {prop: 'licence_name', label: '许可名称', showOverflowTooltip: true},
+    {prop: 'licence_code', label: '许可证号', showOverflowTooltip: true},
+    {prop: 'licence_scope', label: '许可内容', showOverflowTooltip: true},
+    {prop: 'valid_date', label: '有效期', showOverflowTooltip: true},
+    {prop: 'issue_org', label: '发证机关', showOverflowTooltip: true},
+    {prop: 'status', label: '状态'},
+    operationColumn
+  ],
+  1: [
+    {prop: 'licence_name', label: '名称', showOverflowTooltip: true},
+    {prop: 'licence_code', label: '编号', showOverflowTooltip: true},
+    {prop: 'licence_scope', label: '经营范围', showOverflowTooltip: true},
+    {prop: 'issue_org', label: '发证机关', showOverflowTooltip: true},
+    {prop: 'data_source', label: '来源', showOverflowTooltip: true},
+    {prop: 'issue_date', label: '发证日期', showOverflowTooltip: true},
+    {prop: 'valid_date', label: '有效期限', showOverflowTooltip: true},
+    operationColumn
+  ],
+  2: [
+    {prop: 'licence_name', label: '许可名称', showOverflowTooltip: true},
+    {prop: 'licence_code', label: '许可证号', showOverflowTooltip: true},
+    {prop: 'licence_scope', label: '许可内容', showOverflowTooltip: true},
+    {prop: 'valid_date', label: '有效期', showOverflowTooltip: true},
+    {prop: 'issue_org', label: '发证机关', showOverflowTooltip: true},
+    {prop: 'status', label: '状态'},
+    operationColumn
+  ],
+  3: [
+    {prop: 'licence_name', label: '名称', showOverflowTooltip: true},
+    {prop: 'licence_code', label: '编号', showOverflowTooltip: true},
+    {prop: 'product_name', label: '产品名称', showOverflowTooltip: true},
+    {prop: 'approval_date', label: '批准日期', showOverflowTooltip: true},
+    {prop: 'data_source', label: '来源', showOverflowTooltip: true},
+    {prop: 'valid_date', label: '有效期至', showOverflowTooltip: true},
+    operationColumn
+  ]
+}
 
-const currentTab = async () => {
-  if (!props.itemData.id || !activeTab.value) {
+const columns = computed(() => columnMap[activeTab.value] || columnMap[0])
+
+const currentTab = async (val) => {
+  if (!props.itemData.id || val === undefined || val === null) {
     tableData.value = []
     return
   }
+  activeTab.value = val
   tableLoading.value = true
   try {
     const res = await submitItem('/v1/company/licencelist', 'get', {
@@ -92,19 +106,13 @@ const handleAction = () => {
 
 }
 
-watch([licenseTabs, () => props.itemData.id], ([tabs]) => {
-  if (tabs.length === 0) {
-    activeTab.value = ''
-    tableData.value = []
-    return
-  }
-  if (!tabs.some((item) => item.name === activeTab.value)) {
-    activeTab.value = tabs[0].name
-  }
-  currentTab()
-}, {
-  immediate: true
-})
+const handleEdit = (row) => {
+  emit('edit', { row, activeTab: activeTab.value })
+}
+
+const handleDelete = (row) => {
+  emit('delete', { row, activeTab: activeTab.value })
+}
 </script>
 
 <template>
@@ -116,12 +124,17 @@ watch([licenseTabs, () => props.itemData.id], ([tabs]) => {
       </div>
     </div>
     <div class="class-flex">
-      <el-tabs v-model="activeTab" :tab-position="'left'" @tab-change="currentTab" class="license-content__tabs">
-        <el-tab-pane v-for="item in licenseTabs" :key="item.value" :name="item.name">
-          <template #label><span>{{ item.name }}</span> <em>({{ item.value }})</em></template>
-        </el-tab-pane>
-      </el-tabs>
-      <index-table class="license-content__table" :loading="tableLoading" :table-data="tableData" :columns="columns" :params="tableParams" :meta="tableMeta" />
+      <ul class="license-content__tabs">
+        <li v-for="(item, index) in licenseTabs" :key="index" @click="currentTab(index)" :class="[activeTab === index ? 'active' : '' ]">
+          <span>{{ item.name }}</span> <em>({{ item.value }})</em>
+        </li>
+      </ul>
+      <index-table class="license-content__table" :loading="tableLoading" :table-data="tableData" :columns="columns" :params="tableParams" :meta="tableMeta">
+        <template #operation="{ row }">
+          <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+          <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+        </template>
+      </index-table>
     </div>
   </section>
 </template>
@@ -149,17 +162,62 @@ watch([licenseTabs, () => props.itemData.id], ([tabs]) => {
   }
 }
 .license-content {
+  margin: 0 10px;
   padding: 0 10px 18px;
+  background: $white;
 }
 .license-content__tabs{
-  min-width: 200px;
-  width: 300px;
-  v-deep(.el-tabs__content){
-    width: 0;
+  min-width: 140px;
+  width: auto;
+  margin-right: 20px;
+  padding: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background: $white-shallow;
+  &:after{
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--el-border-color-light);
+    z-index: var(--el-index-normal);
+  }
+  li{
+    height: 36px;
+    line-height: 36px;
+    text-align: right;
+    padding: 0 25px;
+    margin: 5px 0;
+    width: stretch;
+    color: $black-color;
+    overflow: hidden;
+    border-right: 4px solid var(--el-border-color-light);
+    span{
+      font-size: 15px;
+      display: inline-block;
+    }
+    em{
+      letter-spacing: 2px;
+      font-size: 14px;
+    }
+  }
+  li.active, li:hover{
+    color: $blue-dark;
+    cursor: pointer;
+    z-index: 10;
+  }
+  li.active{
+    border-right: 3px solid $blue-dark;
   }
 }
 .license-content__table {
   flex: 1;
   padding: 10px 0;
+  width: 100%;
+  overflow: hidden;
 }
 </style>

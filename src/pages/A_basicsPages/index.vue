@@ -74,13 +74,13 @@ onMounted(() => {
 .el-aside {
   width: auto;
   margin: 0;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 125px);
   padding: 15px 10px 15px 15px;
   transition: height 0.5s;
 }
 .el-main {
   flex: 1;
-  height: calc(100vh - 135px);
+  height: calc(100vh - 120px);
   margin: 0;
   padding: 10px 15px 15px 0;
   position: relative;
