@@ -33,7 +33,7 @@ const ObjectArray = {
     label: '数据标签',
     key: 'label_name',
     options: [],
-    request: { url: '/v1/labels/list', method: 'get', param: { target_type: 3 }, label: 'label_name', value: 'id' }
+    request: { url: '/v1/labels/list', method: 'post', param: { target_type: 3 }, label: 'label_name', value: 'id' }
   },
   updateDate: {
     component: 'datepickergroupEl',

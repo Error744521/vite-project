@@ -172,14 +172,20 @@ defineExpose({clearSelection, clearSort, scrollTo, tableRef})
     }
   }
   :deep(.table-flex-colum .cell) {
-    display: inline-grid;
+    display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    button{
-      margin: 0 0 10px 0;
+    vertical-align: middle;
+
+    button {
+      margin: 0;
       width: 100px;
       overflow: hidden;
+    }
+
+    button + button {
+      margin-top: 10px;
     }
   }
 }

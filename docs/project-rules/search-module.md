@@ -156,7 +156,7 @@ label_name: {
   options: [],
   request: {
     url: '/v1/labels/list',
-    method: 'get',
+    method: 'post',
     param: { target_type: 3 },
     label: 'label_name',
     value: 'id'
